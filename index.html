@@ -3025,13 +3025,6 @@
             else btn.classList.remove('auto-on');
             if(isAutoBattle && isPlayerTurn && combatActive) processAutoTurn(); 
         }
-        function fleeBattle() { 
-            combatActive = false; 
-            isAutoBattle = false; 
-            const btn = document.getElementById('btn-auto');
-            if(btn) btn.classList.remove('auto-on'); 
-            showHub(); 
-        }
         function returnToTown() {
             combatActive = false;
             isAutoBattle = false;
@@ -3039,6 +3032,7 @@
             if(btn) btn.classList.remove('auto-on');
             showHub();
         }
+        function fleeBattle() { returnToTown(); }
         function showFloatText(targetId, text, colorClass) { const target = document.getElementById(targetId); if (!target) return; const floater = document.createElement('div'); floater.className = `float-text ${colorClass}`; floater.innerText = text; target.appendChild(floater); setTimeout(() => { if(floater.parentNode) floater.remove(); }, 900); }
 
         function generateEnemies() {
