@@ -160,7 +160,7 @@
 
             <!-- Energy Bar -->
             <div class="w-full bg-gray-900 p-2 rounded-lg border border-blue-900 mb-4 flex justify-between items-center shadow-inner" title="Used to engage in combat and gather resources in Story Mode.">
-                <div class="text-blue-400 font-bold text-sm">⚡ Energy: <span id="hub-energy" class="text-white text-lg">20</span>/20</div>
+                <div class="text-blue-400 font-bold text-sm">⚡ Energy: <span id="hub-energy" class="text-white text-lg">10</span>/<span id="hub-energy-max" class="text-white">10</span></div>
                 <div class="text-xs text-gray-400">Regens 1/min</div>
             </div>
 
@@ -605,6 +605,7 @@
                 <div class="flex justify-between"><span>💠 XP Blessing:</span><span id="well-xp-status" class="font-bold text-yellow-300">Inactive</span></div>
                 <div class="flex justify-between"><span>🎁 Drop Blessing:</span><span id="well-drop-status" class="font-bold text-purple-300">Inactive</span></div>
                 <div class="flex justify-between"><span>💧 Daily Heal:</span><span id="well-heal-status" class="font-bold text-green-300">Ready</span></div>
+                <div class="flex justify-between"><span>⚡ Energy Refill:</span><span id="well-energy-status" class="font-bold text-blue-300">Ready</span></div>
             </div>
             <div class="grid grid-cols-1 gap-3">
                 <button id="well-heal-btn" onclick="useWellHeal()" class="bg-green-800 hover:bg-green-700 border border-green-500 p-4 rounded-xl text-left disabled:opacity-50">
@@ -618,6 +619,10 @@
                 <button id="well-drop-btn" onclick="buyWellDropBuff()" class="bg-purple-800 hover:bg-purple-700 border border-purple-500 p-4 rounded-xl text-left disabled:opacity-50">
                     <div class="font-bold text-purple-200">🎁 5x Drop Rate Blessing — 20 Gold</div>
                     <div class="text-[11px] text-gray-300">5x drop chance rolls for your next 10 completed battles. Once per day.</div>
+                </button>
+                <button id="well-energy-btn" onclick="useWellEnergy()" class="bg-blue-800 hover:bg-blue-700 border border-blue-500 p-4 rounded-xl text-left disabled:opacity-50">
+                    <div class="font-bold text-blue-200">⚡ Refill Energy — 20 Gold</div>
+                    <div class="text-[11px] text-gray-300">Refills your energy to max. Can be used once per day.</div>
                 </button>
             </div>
             <div id="well-log" class="text-center text-cyan-300 font-bold mt-4 min-h-6"></div>
@@ -795,7 +800,7 @@
         </div>
         <div class="flex flex-col gap-3 w-full max-w-xs">
             <button id="btn-end-next" onclick="handleEndNext()" class="w-full py-4 bg-blue-600 hover:bg-blue-500 rounded-xl text-xl font-bold transition active:scale-95 shadow-[0_0_15px_rgba(37,99,235,0.5)] hidden border border-blue-400">Continue</button>
-            <button id="btn-end-hub" onclick="showHub()" class="w-full py-4 bg-gray-800 hover:bg-gray-700 rounded-xl text-xl font-bold transition shadow-lg border border-gray-600 active:scale-95">Return to Goldcrest Town</button>
+            <button id="btn-end-hub" onclick="returnToTown()" class="w-full py-4 bg-gray-800 hover:bg-gray-700 rounded-xl text-xl font-bold transition shadow-lg border border-gray-600 active:scale-95">Return to Goldcrest Town</button>
         </div>
     </div>
 
@@ -1082,13 +1087,13 @@
         // --- GLOBAL & PLAYER STATE ---
         let globalProgression = {
             gold: 100, kills: 0, dungeonTier: 1, tickets: 5,
-            energy: 20, lastEnergyTime: Date.now(),
+            energy: 10, lastEnergyTime: Date.now(),
             questProg1: 0, questGoal1: 3, questRwd1: 50, questRarity1: 'common', questType1: 'hunting',
             questProg2: 0, questGoal2: 3, questRwd2: 100, questRarity2: 'common', questType2: 'pillage',
             questProg3: 0, questGoal3: 3, questRwd3: 150, questRarity3: 'common', questType3: 'workshop',
             questProg4: 0, questGoal4: 3, questRwd4: 200, questRarity4: 'common', questType4: 'dungeon',
             questsCompletedToday: 0, lastQuestDate: new Date().toDateString(),
-            wellLastHealDate: '', wellXpBattles: 0, wellDropBattles: 0, wellLastXpDate: '', wellLastDropDate: '',
+            wellLastHealDate: '', wellXpBattles: 0, wellDropBattles: 0, wellLastXpDate: '', wellLastDropDate: '', wellLastEnergyDate: '',
             lastHpRegenTime: Date.now(), enemyKillCounts: {}, claimedCodexMilestones: {},
             totalExpEarned: 0, cooldowns: { herbs: 0, mine: 0, fish: 0 },
             inventory: { ench_common: 0, ench_rare: 0, ench_epic: 0, ench_legendary: 0, herb_red: 0, herb_blue: 0, fish_1: 0, fish_2: 0, fish_3: 0, fish_4: 0, fish_5: 0, fish_6: 0, soul_pebbles: 0, pot_i1: 20, pot_i2: 0, pot_i3: 0, pot_r1: 0, pot_r2: 0, pot_r3: 0, food_d1: 0, food_d2: 0, food_d3: 0, food_df1: 0, food_df2: 0, food_df3: 0 },
@@ -1131,12 +1136,14 @@
 
         // --- ENERGY SYSTEM ---
         function updateEnergy() {
+            let maxEnergy = Math.min(50, 10 + (player.lvl - 1));
             let now = Date.now(); let msPassed = now - globalProgression.lastEnergyTime; let minutesPassed = Math.floor(msPassed / 60000);
-            if (globalProgression.energy < 20) {
-                if (minutesPassed > 0) { globalProgression.energy = Math.min(20, globalProgression.energy + minutesPassed); globalProgression.lastEnergyTime = now - (msPassed % 60000); saveGame(); }
+            if (globalProgression.energy < maxEnergy) {
+                if (minutesPassed > 0) { globalProgression.energy = Math.min(maxEnergy, globalProgression.energy + minutesPassed); globalProgression.lastEnergyTime = now - (msPassed % 60000); saveGame(); }
             } else { globalProgression.lastEnergyTime = now; }
 
             const eEl = document.getElementById('hub-energy'); if(eEl) eEl.innerText = globalProgression.energy;
+            const eMxEl = document.getElementById('hub-energy-max'); if(eMxEl) eMxEl.innerText = maxEnergy;
             const seEl = document.getElementById('story-energy'); if(seEl) seEl.innerText = globalProgression.energy;
 
             ['herbs', 'mine', 'fish'].forEach(type => {
@@ -1180,7 +1187,7 @@
         setInterval(updateHp, 1000);
 
         function consumeEnergy(amount) {
-            if(globalProgression.energy >= amount) { globalProgression.energy -= amount; if(globalProgression.energy === 20 - amount) globalProgression.lastEnergyTime = Date.now(); saveGame(); updateEnergy(); return true; }
+            if(globalProgression.energy >= amount) { globalProgression.energy -= amount; let maxEnergy = Math.min(50, 10 + (player.lvl - 1)); if(globalProgression.energy === maxEnergy - amount) globalProgression.lastEnergyTime = Date.now(); saveGame(); updateEnergy(); return true; }
             return false;
         }
 
@@ -1207,9 +1214,10 @@
                 if(globalProgression.lastHpRegenTime === undefined) globalProgression.lastHpRegenTime = Date.now();
                 if(globalProgression.wellLastXpDate === undefined) globalProgression.wellLastXpDate = '';
                 if(globalProgression.wellLastDropDate === undefined) globalProgression.wellLastDropDate = '';
+                if(globalProgression.wellLastEnergyDate === undefined) globalProgression.wellLastEnergyDate = '';
                 if(globalProgression.enemyKillCounts === undefined) globalProgression.enemyKillCounts = {};
                 if(globalProgression.claimedCodexMilestones === undefined) globalProgression.claimedCodexMilestones = {};
-                if(!player.equippedUsables) player.equippedUsables = [null, null, null, null, null, null, null, null];
+                if(!player.equippedUsables) player.equippedUsables = [null, null, null, null, null, null, null];
                 if(globalProgression.skillTreeEnhancements === undefined) globalProgression.skillTreeEnhancements = [];
                 if(player.wayOfHeavensCooldown === undefined) player.wayOfHeavensCooldown = 0;
                 if(globalProgression.equipped && globalProgression.equipped.cape === undefined) globalProgression.equipped.cape = null;
@@ -1388,13 +1396,13 @@
 
         window.startGame = function(classId = 'warrior') {
             globalProgression = {
-                gold: 100, kills: 0, dungeonTier: 1, tickets: 5, energy: 20, lastEnergyTime: Date.now(),
+                gold: 100, kills: 0, dungeonTier: 1, tickets: 5, energy: 10, lastEnergyTime: Date.now(),
                 questProg1: 0, questGoal1: 3, questRwd1: 50, questRarity1: 'common', questType1: 'hunting',
                 questProg2: 0, questGoal2: 3, questRwd2: 100, questRarity2: 'common', questType2: 'pillage',
                 questProg3: 0, questGoal3: 3, questRwd3: 150, questRarity3: 'common', questType3: 'workshop',
                 questProg4: 0, questGoal4: 3, questRwd4: 200, questRarity4: 'common', questType4: 'dungeon',
                 questsCompletedToday: 0, lastQuestDate: new Date().toDateString(),
-                wellLastHealDate: '', wellXpBattles: 0, wellDropBattles: 0, wellLastXpDate: '', wellLastDropDate: '',
+                wellLastHealDate: '', wellXpBattles: 0, wellDropBattles: 0, wellLastXpDate: '', wellLastDropDate: '', wellLastEnergyDate: '',
                 lastHpRegenTime: Date.now(), enemyKillCounts: {}, claimedCodexMilestones: {},
                 totalExpEarned: 0, cooldowns: { herbs: 0, mine: 0, fish: 0 },
                 inventory: { ench_common: 0, ench_rare: 0, ench_epic: 0, ench_legendary: 0, herb_red: 0, herb_blue: 0, fish_1: 0, fish_2: 0, fish_3: 0, fish_4: 0, fish_5: 0, fish_6: 0, soul_pebbles: 0, pot_i1: 20, pot_i2: 0, pot_i3: 0, pot_r1: 0, pot_r2: 0, pot_r3: 0, food_d1: 0, food_d2: 0, food_d3: 0, food_df1: 0, food_df2: 0, food_df3: 0 },
@@ -1410,7 +1418,7 @@
                 statPoints: 0, skillPoints: 0, treeProgress: 0, treeBonusHp: 0, treeBonusDmg: 0, treeBonusDef: 0, treeBonusRegen: 0,
                 treeProgressFire: 0, treeProgressIce: 0, treeProgressOffense: 0, treeProgressDefense: 0,
                 unlockedSkills: [0, 1, 2], equippedSkills: [0, 1, 2, null, null], skillCooldowns: {}, regenBuffs: [], activeBuffs: [], stunned: 0, bleedStacks: 0, bleedTurns: 0, dodgeTurns: 0,
-                equippedUsables: [null, null, null, null, null, null, null, null],
+                equippedUsables: [null, null, null, null, null, null, null],
                 wayOfHeavensCooldown: 0, rageUsed: false, rageActive: 0, divineShieldUsed: false, reflectUsed: false
             };
             player.maxHp = calculateMaxHp(); player.currentHp = player.maxHp; 
@@ -1625,7 +1633,7 @@
             document.getElementById('char-stat-dodge').innerText = `${((a.resistance * 0.001 + getEquipBonusStat('bonusDodge')) * 100).toFixed(1)}%`;
             document.getElementById('char-stat-hit').innerText = `${((a.reflexes * 0.001 + getEquipBonusStat('bonusHit')) * 100).toFixed(1)}%`;
             document.getElementById('char-stat-crit').innerText = `${Math.min(75, (a.reflexes * 1) + (getEquipBonusStat('bonusCritRate') * 100)).toFixed(1)}%`;
-            document.getElementById('char-stat-critdmg').innerText = `${(100 + (a.fury * 1) + (a.willpower * 0.5) + (getEquipBonusStat('bonusCritDmg') * 100)).toFixed(0)}%`;
+            let classBase = getClassBaseAttributes(player.data.id); document.getElementById('char-stat-critdmg').innerText = `${(100 + ((a.fury - classBase.fury) * 1) + ((a.willpower - classBase.willpower) * 0.5) + (getEquipBonusStat('bonusCritDmg') * 100)).toFixed(0)}%`;
             document.getElementById('char-stat-dmgred').innerText = `${((a.tenacity * 0.001 + getEquipBonusStat('bonusDmgReduction')) * 100).toFixed(1)}%`;
             document.getElementById('char-stat-reflect').innerText = `${((a.tenacity * 0.0001 + getEquipBonusStat('bonusReflect')) * 100).toFixed(3)}%`;
             document.getElementById('char-stat-skilldmg').innerText = `${(a.agility * 0.1).toFixed(1)}%`;
@@ -2513,7 +2521,7 @@
             const list = document.getElementById('combat-bag-list'); list.innerHTML = '';
             
             let hasAny = false;
-            // Show Consumables
+            // Show Consumables only
             Object.keys(CONSUMABLES).forEach(key => {
                 let amt = inv[key] || 0;
                 if(amt > 0) {
@@ -2523,15 +2531,7 @@
                 }
             });
 
-            // Show Materials
-            ['ench_common', 'ench_rare', 'ench_epic', 'ench_legendary', 'herb_red', 'herb_blue', 'fish_1', 'fish_2', 'fish_3', 'fish_4', 'fish_5', 'fish_6', 'soul_pebbles'].forEach(key => {
-                if(inv[key] > 0) {
-                    hasAny = true;
-                    list.innerHTML += `<div class="bg-gray-900 border border-gray-700 p-2 rounded flex justify-between items-center"><div class="flex items-center gap-2"><span class="text-xl">${MAT_ICONS[key]}</span> <b class="text-gray-300 text-sm">${MAT_NAMES[key]}</b></div> <span class="text-yellow-400 font-bold">x${inv[key]}</span></div>`;
-                }
-            });
-
-            if(!hasAny) list.innerHTML = '<p class="text-gray-500 text-center py-4 text-sm">Bag is entirely empty.</p>';
+            if(!hasAny) list.innerHTML = '<p class="text-gray-500 text-center py-4 text-sm">No consumables in bag.</p>';
             
             document.getElementById('modal-combat-bag').style.display = 'flex';
         }
@@ -2722,19 +2722,23 @@
             const canUseHeal = globalProgression.wellLastHealDate !== today;
             const canUseXp = (globalProgression.wellLastXpDate || '') !== today;
             const canUseDrop = (globalProgression.wellLastDropDate || '') !== today;
+            const canUseEnergy = (globalProgression.wellLastEnergyDate || '') !== today;
             const p = globalProgression;
 
             document.getElementById('well-gold-display').innerText = p.gold;
             document.getElementById('well-heal-status').innerText = canUseHeal ? 'Ready' : 'Used Today';
             document.getElementById('well-xp-status').innerText = !canUseXp ? 'Used Today' : p.wellXpBattles > 0 ? `${p.wellXpBattles} battles left` : 'Inactive';
             document.getElementById('well-drop-status').innerText = !canUseDrop ? 'Used Today' : p.wellDropBattles > 0 ? `${p.wellDropBattles} battles left` : 'Inactive';
-
+            document.getElementById('well-energy-status').innerText = canUseEnergy ? 'Ready' : 'Used Today';
+            
             const healBtn = document.getElementById('well-heal-btn');
             const xpBtn = document.getElementById('well-xp-btn');
             const dropBtn = document.getElementById('well-drop-btn');
+            const energyBtn = document.getElementById('well-energy-btn');
             healBtn.disabled = !canUseHeal || p.gold < 20;
             xpBtn.disabled = !canUseXp || p.gold < 20;
             dropBtn.disabled = !canUseDrop || p.gold < 20;
+            energyBtn.disabled = !canUseEnergy || p.gold < 20;
 
             document.getElementById('well-log').innerText = '';
             switchScreen('screen-well');
@@ -2781,6 +2785,16 @@
             log.innerText = '5x drop blessing is active for 10 battles!';
             playSound('win');
             saveGame();
+            showWell();
+        }
+        function useWellEnergy() {
+            const p = globalProgression; const today = new Date().toDateString();
+            const log = document.getElementById('well-log');
+            if((globalProgression.wellLastEnergyDate || '') === today) { log.innerText = 'Energy refill already used today.'; playSound('lose'); return; }
+            if(p.gold < 20) { log.innerText = 'Not enough Gold!'; playSound('lose'); return; }
+            let maxEnergy = Math.min(50, 10 + (player.lvl - 1));
+            p.gold -= 20; p.energy = maxEnergy; globalProgression.wellLastEnergyDate = today; saveGame(); updateEnergy();
+            log.innerText = `⚡ Energy refilled to ${maxEnergy}!`; playSound('chest');
             showWell();
         }
 
@@ -3011,13 +3025,14 @@
             else btn.classList.remove('auto-on');
             if(isAutoBattle && isPlayerTurn && combatActive) processAutoTurn(); 
         }
-        function fleeBattle() { 
-            combatActive = false; 
-            isAutoBattle = false; 
+        function returnToTown() {
+            combatActive = false;
+            isAutoBattle = false;
             const btn = document.getElementById('btn-auto');
-            if(btn) btn.classList.remove('auto-on'); 
-            showHub(); 
+            if(btn) btn.classList.remove('auto-on');
+            showHub();
         }
+        function fleeBattle() { returnToTown(); }
         function showFloatText(targetId, text, colorClass) { const target = document.getElementById(targetId); if (!target) return; const floater = document.createElement('div'); floater.className = `float-text ${colorClass}`; floater.innerText = text; target.appendChild(floater); setTimeout(() => { if(floater.parentNode) floater.remove(); }, 900); }
 
         function generateEnemies() {
@@ -3157,28 +3172,44 @@
             const cont = document.getElementById('combat-usable-slots');
             if(!cont) return;
             cont.innerHTML = '';
-            if(!player.equippedUsables) player.equippedUsables = [null, null, null, null, null, null, null, null];
-            let numUnlocked = Math.min(8, 1 + Math.floor(player.lvl / 4));
-            for(let i = 0; i < 8; i++) {
-                let btn = document.createElement('div');
-                btn.style.cssText = 'width:40px;height:40px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;cursor:pointer;flex-shrink:0;position:relative;';
+            if(!player.equippedUsables) player.equippedUsables = [null, null, null, null, null, null, null];
+            let numUnlocked = Math.min(7, 1 + Math.floor(player.lvl / 4));
+            for(let i = 0; i < 7; i++) {
+                let wrapper = document.createElement('div');
+                wrapper.style.cssText = 'display:flex;flex-direction:column;align-items:center;gap:2px;flex-shrink:0;';
+                let slot = document.createElement('div');
+                slot.style.cssText = 'width:40px;height:40px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0;position:relative;';
+                let actionBtn = document.createElement('button');
+                actionBtn.style.cssText = 'font-size:0.55rem;padding:1px 3px;border-radius:3px;font-weight:bold;cursor:pointer;border:none;line-height:1;';
                 if(i >= numUnlocked) {
-                    btn.style.cssText += 'background:#1f2937;border:1px solid #374151;color:#6b7280;cursor:not-allowed;';
-                    btn.innerHTML = '🔒';
+                    slot.style.cssText += 'background:#1f2937;border:1px solid #374151;color:#6b7280;cursor:not-allowed;';
+                    slot.innerHTML = '🔒';
+                    actionBtn.style.cssText += 'background:#374151;color:#6b7280;cursor:not-allowed;';
+                    actionBtn.innerText = '🔒';
+                    actionBtn.disabled = true;
                 } else if(player.equippedUsables[i]) {
                     let key = player.equippedUsables[i];
                     let c = CONSUMABLES[key];
                     let amt = globalProgression.inventory[key] || 0;
-                    btn.style.cssText += 'background:#451a03;border:1px solid #fbbf24;';
-                    btn.innerHTML = `<span>${c ? c.icon : '?'}</span><span style="position:absolute;bottom:-2px;right:0;font-size:0.55rem;font-weight:bold;color:#fbbf24;">${amt}</span>`;
-                    btn.title = c ? c.name : key;
-                    btn.onclick = (e) => { e.stopPropagation(); player.equippedUsables[i] = null; renderUsableSlots(); };
+                    slot.style.cssText += 'background:#451a03;border:1px solid #fbbf24;cursor:pointer;';
+                    slot.innerHTML = `<span>${c ? c.icon : '?'}</span><span style="position:absolute;bottom:-2px;right:0;font-size:0.55rem;font-weight:bold;color:#fbbf24;">${amt}</span>`;
+                    slot.title = (c ? c.name : key) + ' — Click to use';
+                    slot.onclick = (e) => { e.stopPropagation(); useConsumable(key); };
+                    actionBtn.style.cssText += 'background:#7f1d1d;color:#fca5a5;';
+                    actionBtn.innerText = '✕';
+                    actionBtn.title = 'Remove item';
+                    actionBtn.onclick = (e) => { e.stopPropagation(); player.equippedUsables[i] = null; renderUsableSlots(); };
                 } else {
-                    btn.style.cssText += 'background:#1f2937;border:1px dashed #4b5563;color:#6b7280;';
-                    btn.innerHTML = '+';
-                    btn.onclick = (e) => { e.stopPropagation(); openUsableSlotPicker(i); };
+                    slot.style.cssText += 'background:#1f2937;border:1px dashed #4b5563;color:#6b7280;';
+                    slot.innerHTML = '';
+                    actionBtn.style.cssText += 'background:#374151;color:#9ca3af;';
+                    actionBtn.innerText = '+';
+                    actionBtn.title = 'Add item';
+                    actionBtn.onclick = (e) => { e.stopPropagation(); openUsableSlotPicker(i); };
                 }
-                cont.appendChild(btn);
+                wrapper.appendChild(slot);
+                wrapper.appendChild(actionBtn);
+                cont.appendChild(wrapper);
             }
         }
 
@@ -3196,7 +3227,7 @@
                     let btn = document.createElement('button');
                     btn.className = 'w-full bg-gray-900 border border-gray-700 p-2 rounded flex justify-between items-center mb-1 active:scale-95 transition';
                     btn.innerHTML = `<div class="flex items-center gap-2"><span class="text-xl">${c.icon}</span><div><b class="text-white text-sm">${c.name}</b><div class="text-[10px] text-gray-400">${c.desc}</div></div></div><span class="text-yellow-400 font-bold">x${amt}</span>`;
-                    btn.onclick = () => { if(!player.equippedUsables) player.equippedUsables = [null,null,null,null,null,null,null,null]; player.equippedUsables[_usablePickerSlot] = key; closeCombatBag(); renderUsableSlots(); };
+                    btn.onclick = () => { if(!player.equippedUsables) player.equippedUsables = [null,null,null,null,null,null,null]; player.equippedUsables[_usablePickerSlot] = key; closeCombatBag(); renderUsableSlots(); };
                     cont.appendChild(btn);
                 }
             });
@@ -3523,7 +3554,7 @@
                         let critChance = Math.min(0.75, (a.reflexes * 0.01) + getEquipBonusStat('bonusCritRate'));
                         let isCrit = Math.random() < critChance;
                         if(isCrit) {
-                            let critMult = (100 + (a.fury * 1) + (a.willpower * 0.5) + (getEquipBonusStat('bonusCritDmg') * 100)) / 100;
+                            let classBase = getClassBaseAttributes(player.data.id); let critMult = (100 + ((a.fury - classBase.fury) * 1) + ((a.willpower - classBase.willpower) * 0.5) + (getEquipBonusStat('bonusCritDmg') * 100)) / 100;
                             hitDmg = Math.floor(hitDmg * critMult);
                             addLog(`CRITICAL HIT!`, "text-yellow-400 font-bold");
                             playSound('crit');
