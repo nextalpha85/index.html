@@ -586,6 +586,28 @@
                 </div>
             </div>
 
+            <!-- Paladin Tree -->
+            <div id="tree-paladin" class="hidden w-full">
+                <div class="flex justify-between items-center mb-4">
+                    <p class="text-xs text-gray-400">Choose a path! Grants random Attributes.</p>
+                    <div class="text-sm font-bold text-white bg-gray-800 px-2 py-1 rounded shadow-inner border border-gray-700">Prog: <span id="tree-progress-paladin" class="text-purple-400">0</span></div>
+                </div>
+                <div class="flex gap-2 w-full h-96 overflow-y-auto p-2 bg-gray-900 border border-gray-700 rounded-xl shadow-inner mb-4" id="paladin-tree-container">
+                    <!-- Javascript Populated Columns -->
+                </div>
+            </div>
+
+            <!-- Ninja Tree -->
+            <div id="tree-ninja" class="hidden w-full">
+                <div class="flex justify-between items-center mb-4">
+                    <p class="text-xs text-gray-400">Choose a path! Grants random Attributes.</p>
+                    <div class="text-sm font-bold text-white bg-gray-800 px-2 py-1 rounded shadow-inner border border-gray-700">Prog: <span id="tree-progress-ninja" class="text-purple-400">0</span></div>
+                </div>
+                <div class="flex gap-2 w-full h-96 overflow-y-auto p-2 bg-gray-900 border border-gray-700 rounded-xl shadow-inner mb-4" id="ninja-tree-container">
+                    <!-- Javascript Populated Columns -->
+                </div>
+            </div>
+
             <div id="skill-tree-enhancements" class="w-full mt-4"></div>
 
         </div>
@@ -1021,7 +1043,7 @@
         // CLASSES & SKILLS
         const CLASSES = {
             warrior: { 
-                name: 'Warrior', icon: '⚔️', avatar: '🤺', baseHp: 50, baseDmg: 5,
+                name: 'Warrior', icon: '⚔️', avatar: '🤺', baseHp: 50, baseDmg: 10,
                 skills: [
                     { name: 'Slash', type: 'attack', mult: 1, cd: 0, color: 'bg-gray-700', desc: 'Base damage' },
                     { name: 'Cleave', type: 'attack', mult: 1, effect: { bleed: true, turns: 5 }, cd: 5, color: 'bg-red-700', desc: 'Dmg + 1% Max HP Bleed (5t)' },
@@ -1036,7 +1058,7 @@
                 ]
             },
             mage: {
-                name: 'Mage', icon: '🪄', avatar: '🧙‍♂️', baseHp: 40, baseDmg: 8,
+                name: 'Mage', icon: '🪄', avatar: '🧙‍♂️', baseHp: 35, baseDmg: 25,
                 skills: [
                     { name: 'Blast', type: 'attack', mult: 1, cd: 0, color: 'bg-blue-700', desc: 'Base damage' },
                     { name: 'Fireball', type: 'attack', mult: 1.02, cd: 4, color: 'bg-red-600', desc: 'Base dmg + 2%' },
@@ -1052,7 +1074,7 @@
                 ]
             },
             paladin: {
-                name: 'Paladin', icon: '🔨', avatar: '🛡️', baseHp: 45, baseDmg: 6,
+                name: 'Paladin', icon: '🔨', avatar: '🛡️', baseHp: 60, baseDmg: 15,
                 skills: [
                     { name: 'Strike', type: 'attack', mult: 1, cd: 0, color: 'bg-gray-700', desc: 'Base damage' },
                     { name: 'Iron Shield', type: 'buff', mult: 0, self_effect: { reflect: 0.50, reflectTurns: 1, regenPct: 0.10, turns: 2 }, cd: 5, color: 'bg-gray-500', desc: 'Reflect 50% dmg (1t), Heal 10% HP/t (2t)' },
@@ -1066,7 +1088,7 @@
                 ]
             },
             ninja: {
-                name: 'Ninja', icon: '🌟', avatar: '🥷', baseHp: 35, baseDmg: 7,
+                name: 'Ninja', icon: '🌟', avatar: '🥷', baseHp: 30, baseDmg: 30,
                 skills: [
                     { name: 'Shuriken Hit', type: 'attack', mult: 1, cd: 0, color: 'bg-gray-600', desc: 'Base damage' },
                     { name: 'Face Kick', type: 'attack', mult: 1.06, cd: 5, color: 'bg-orange-500', desc: '+6% dmg' },
@@ -1143,7 +1165,7 @@
             wellLastHealDate: '', wellXpBattles: 0, wellDropBattles: 0, wellLastXpDate: '', wellLastDropDate: '', wellLastEnergyDate: '',
             lastHpRegenTime: Date.now(), enemyKillCounts: {}, claimedCodexMilestones: {},
             totalExpEarned: 0, cooldowns: { herbs: 0, mine: 0, fish: 0 },
-            inventory: { ench_common: 0, ench_rare: 0, ench_epic: 0, ench_legendary: 0, herb_red: 0, herb_blue: 0, fish_1: 0, fish_2: 0, fish_3: 0, fish_4: 0, fish_5: 0, fish_6: 0, soul_pebbles: 0, pot_i1: 20, pot_i2: 0, pot_i3: 0, pot_r1: 0, pot_r2: 0, pot_r3: 0, food_d1: 0, food_d2: 0, food_d3: 0, food_df1: 0, food_df2: 0, food_df3: 0 },
+            inventory: { ench_common: 0, ench_rare: 0, ench_epic: 0, ench_legendary: 0, herb_red: 0, herb_blue: 0, fish_1: 0, fish_2: 0, fish_3: 0, fish_4: 0, fish_5: 0, fish_6: 0, soul_pebbles: 0, pot_i1: 30, pot_i2: 0, pot_i3: 0, pot_r1: 0, pot_r2: 0, pot_r3: 0, food_d1: 0, food_d2: 0, food_d3: 0, food_df1: 0, food_df2: 0, food_df3: 0 },
             equipInventory: [], equipped: { head: null, shoulders: null, chest: null, arms: null, waist: null, legs: null, boots: null, necklace: null, ring1: null, ring2: null, ring3: null, ring4: null, weapon: null, cape: null },
             newItems: {}, shopGear: [], shopLastRefresh: 0,
             attributes: { hp: 1, tenacity: 1, agility: 1, willpower: 1, resistance: 1, reflexes: 1, fury: 1, devastation: 0 },
@@ -1170,6 +1192,7 @@
             classId: 'warrior', data: CLASSES['warrior'], lvl: 1, xp: 0, maxHp: 0, currentHp: 0, shield: 0,
             statPoints: 0, treeProgress: 0, treeBonusHp: 0, treeBonusDmg: 0, treeBonusDef: 0, treeBonusRegen: 0,
             treeProgressFire: 0, treeProgressIce: 0, treeProgressOffense: 0, treeProgressDefense: 0,
+            treeProgressHoly: 0, treeProgressGuardian: 0, treeProgressShadow: 0, treeProgressVenom: 0,
             skillPoints: 0, unlockedSkills: [0, 1, 2], equippedSkills: [0, 1, 2, null, null], 
             skillCooldowns: {}, regenBuffs: [], activeBuffs: [],
             stunned: 0, bleedStacks: 0, bleedTurns: 0, dodgeTurns: 0,
@@ -1269,6 +1292,10 @@
                 if(player.wayOfHeavensCooldown === undefined) player.wayOfHeavensCooldown = 0;
                 if(globalProgression.equipped && globalProgression.equipped.cape === undefined) globalProgression.equipped.cape = null;
                 if(globalProgression.classBaseAttributes === undefined) globalProgression.classBaseAttributes = null;
+                if(player.treeProgressHoly === undefined) player.treeProgressHoly = 0;
+                if(player.treeProgressGuardian === undefined) player.treeProgressGuardian = 0;
+                if(player.treeProgressShadow === undefined) player.treeProgressShadow = 0;
+                if(player.treeProgressVenom === undefined) player.treeProgressVenom = 0;
 
                 if (globalProgression.lastQuestDate !== new Date().toDateString()) {
                     globalProgression.questsCompletedToday = 0;
@@ -1375,9 +1402,11 @@
                 if (attrId === 'willpower') return 50;
             } else if (classId === 'paladin') {
                 if (attrId === 'willpower') return 25;
+                if (attrId === 'fury') return 50;
                 if (attrId === 'hp') return 9999;
             } else if (classId === 'ninja') {
-                if (attrId === 'hp') return 9999;
+                if (attrId === 'willpower') return 75;
+                if (attrId === 'hp') return 40;
             }
             if (attrId === 'willpower') return 50;
             if (attrId === 'devastation') return 100;
@@ -1461,7 +1490,7 @@
                 wellLastHealDate: '', wellXpBattles: 0, wellDropBattles: 0, wellLastXpDate: '', wellLastDropDate: '', wellLastEnergyDate: '',
                 lastHpRegenTime: Date.now(), enemyKillCounts: {}, claimedCodexMilestones: {},
                 totalExpEarned: 0, cooldowns: { herbs: 0, mine: 0, fish: 0 },
-                inventory: { ench_common: 0, ench_rare: 0, ench_epic: 0, ench_legendary: 0, herb_red: 0, herb_blue: 0, fish_1: 0, fish_2: 0, fish_3: 0, fish_4: 0, fish_5: 0, fish_6: 0, soul_pebbles: 0, pot_i1: 20, pot_i2: 0, pot_i3: 0, pot_r1: 0, pot_r2: 0, pot_r3: 0, food_d1: 0, food_d2: 0, food_d3: 0, food_df1: 0, food_df2: 0, food_df3: 0 },
+                inventory: { ench_common: 0, ench_rare: 0, ench_epic: 0, ench_legendary: 0, herb_red: 0, herb_blue: 0, fish_1: 0, fish_2: 0, fish_3: 0, fish_4: 0, fish_5: 0, fish_6: 0, soul_pebbles: 0, pot_i1: 30, pot_i2: 0, pot_i3: 0, pot_r1: 0, pot_r2: 0, pot_r3: 0, food_d1: 0, food_d2: 0, food_d3: 0, food_df1: 0, food_df2: 0, food_df3: 0 },
                 equipInventory: [], equipped: { head: null, shoulders: null, chest: null, arms: null, waist: null, legs: null, boots: null, necklace: null, ring1: null, ring2: null, ring3: null, ring4: null, weapon: null, cape: null }, newItems: {},
                 shopGear: [], shopLastRefresh: 0, attributes: getClassBaseAttributes(classId),
                 storyModeProgress: { hunting: 0, pillage: 0, workshop: 0 },
@@ -1473,8 +1502,9 @@
                 classId: classId, data: CLASSES[classId], lvl: 1, xp: 0, maxHp: 0, currentHp: 0, shield: 0, 
                 statPoints: 0, skillPoints: 0, treeProgress: 0, treeBonusHp: 0, treeBonusDmg: 0, treeBonusDef: 0, treeBonusRegen: 0,
                 treeProgressFire: 0, treeProgressIce: 0, treeProgressOffense: 0, treeProgressDefense: 0,
+                treeProgressHoly: 0, treeProgressGuardian: 0, treeProgressShadow: 0, treeProgressVenom: 0,
                 unlockedSkills: [0, 1, 2], equippedSkills: [0, 1, 2, null, null], skillCooldowns: {}, regenBuffs: [], activeBuffs: [], stunned: 0, bleedStacks: 0, bleedTurns: 0, dodgeTurns: 0,
-                equippedUsables: [null, null, null, null, null, null, null],
+                equippedUsables: ['pot_i1', null, null, null, null, null, null],
                 wayOfHeavensCooldown: 0, rageUsed: false, rageActive: 0, divineShieldUsed: false, reflectUsed: false
             };
             player.maxHp = calculateMaxHp(); player.currentHp = player.maxHp; 
@@ -2176,6 +2206,8 @@
             if (player.classId === 'warrior') {
                 document.getElementById('tree-warrior').classList.remove('hidden');
                 document.getElementById('tree-mage').classList.add('hidden');
+                let treePaladinW = document.getElementById('tree-paladin'); if(treePaladinW) treePaladinW.classList.add('hidden');
+                let treeNinjaW = document.getElementById('tree-ninja'); if(treeNinjaW) treeNinjaW.classList.add('hidden');
                 document.getElementById('tree-progress').innerText = `${player.treeProgressOffense||0}O / ${player.treeProgressDefense||0}D`;
                 
                 const container = document.getElementById('warrior-tree-container'); container.innerHTML = '';
@@ -2231,6 +2263,8 @@
             } else if (player.classId === 'mage') {
                 document.getElementById('tree-warrior').classList.add('hidden');
                 document.getElementById('tree-mage').classList.remove('hidden');
+                let treePaladin2 = document.getElementById('tree-paladin'); if(treePaladin2) treePaladin2.classList.add('hidden');
+                let treeNinja2 = document.getElementById('tree-ninja'); if(treeNinja2) treeNinja2.classList.add('hidden');
                 document.getElementById('tree-progress-mage').innerText = `${player.treeProgressFire||0}F / ${player.treeProgressIce||0}I`;
                 
                 const container = document.getElementById('mage-tree-container'); container.innerHTML = '';
@@ -2280,8 +2314,100 @@
                     iceCol.appendChild(btn);
                 }
                 container.appendChild(iceCol);
+            } else if (player.classId === 'paladin') {
+                document.getElementById('tree-warrior').classList.add('hidden');
+                document.getElementById('tree-mage').classList.add('hidden');
+                let treeNinjaP = document.getElementById('tree-ninja'); if(treeNinjaP) treeNinjaP.classList.add('hidden');
+                let treePaladin = document.getElementById('tree-paladin');
+                if(treePaladin) {
+                    treePaladin.classList.remove('hidden');
+                    let progPaladin = document.getElementById('tree-progress-paladin');
+                    if(progPaladin) progPaladin.innerText = (player.treeProgressHoly||0) + (player.treeProgressGuardian||0);
+                    let container = document.getElementById('paladin-tree-container'); container.innerHTML = '';
+                    // Holy Path (left) — gold/yellow themed
+                    let holyCol = document.createElement('div'); holyCol.className = 'w-1/2 flex flex-col gap-2 relative';
+                    holyCol.innerHTML = '<div class="text-center font-bold text-yellow-500 border-b border-yellow-700 pb-1 sticky top-0 bg-gray-900 z-10 drop-shadow-md">HOLY PATH</div>';
+                    for(let i=0; i<25; i++) {
+                        let isUnlocked = i < (player.treeProgressHoly||0);
+                        let isNext = i === (player.treeProgressHoly||0);
+                        let isSkillNode = (i===4 || i===9 || i===14);
+                        let skillIdx = i===4 ? 3 : i===9 ? 4 : i===14 ? 5 : null;
+                        let btn = document.createElement('button');
+                        btn.className = `p-2 rounded text-[10px] md:text-xs font-bold border-2 transition-all shadow-md ${isUnlocked?'bg-yellow-900 border-yellow-500 text-yellow-200':isNext?'bg-gray-700 border-yellow-400 text-white animate-pulse shadow-[0_0_10px_rgba(250,204,21,0.5)]':'bg-gray-800 border-gray-700 text-gray-500 opacity-60'}`;
+                        btn.disabled = !isNext;
+                        if(isSkillNode) { btn.innerHTML = `<span class="text-lg">✨</span><br>Unlock:<br>${player.data.skills[skillIdx].name}`; btn.classList.add('h-20'); }
+                        else { btn.innerHTML = `❓ Random<br>Attribute`; }
+                        if(isNext) btn.onclick = () => unlockNextNode('holy', i);
+                        holyCol.appendChild(btn);
+                    }
+                    container.appendChild(holyCol);
+                    // Guardian Path (right) — emerald themed
+                    let guardianCol = document.createElement('div'); guardianCol.className = 'w-1/2 flex flex-col gap-2 relative';
+                    guardianCol.innerHTML = '<div class="text-center font-bold text-emerald-500 border-b border-emerald-700 pb-1 sticky top-0 bg-gray-900 z-10 drop-shadow-md">GUARDIAN PATH</div>';
+                    for(let i=0; i<25; i++) {
+                        let isUnlocked = i < (player.treeProgressGuardian||0);
+                        let isNext = i === (player.treeProgressGuardian||0);
+                        let isSkillNode = (i===4 || i===9 || i===14);
+                        let skillIdx = i===4 ? 6 : i===9 ? 7 : i===14 ? 8 : null;
+                        let btn = document.createElement('button');
+                        btn.className = `p-2 rounded text-[10px] md:text-xs font-bold border-2 transition-all shadow-md ${isUnlocked?'bg-emerald-900 border-emerald-500 text-emerald-200':isNext?'bg-gray-700 border-yellow-400 text-white animate-pulse shadow-[0_0_10px_rgba(250,204,21,0.5)]':'bg-gray-800 border-gray-700 text-gray-500 opacity-60'}`;
+                        btn.disabled = !isNext;
+                        if(isSkillNode) { btn.innerHTML = `<span class="text-lg">🛡️</span><br>Unlock:<br>${player.data.skills[skillIdx].name}`; btn.classList.add('h-20'); }
+                        else { btn.innerHTML = `❓ Random<br>Attribute`; }
+                        if(isNext) btn.onclick = () => unlockNextNode('guardian', i);
+                        guardianCol.appendChild(btn);
+                    }
+                    container.appendChild(guardianCol);
+                }
+            } else if (player.classId === 'ninja') {
+                document.getElementById('tree-warrior').classList.add('hidden');
+                document.getElementById('tree-mage').classList.add('hidden');
+                let treePaladinN = document.getElementById('tree-paladin'); if(treePaladinN) treePaladinN.classList.add('hidden');
+                let treeNinja = document.getElementById('tree-ninja');
+                if(treeNinja) {
+                    treeNinja.classList.remove('hidden');
+                    let progNinja = document.getElementById('tree-progress-ninja');
+                    if(progNinja) progNinja.innerText = (player.treeProgressShadow||0) + (player.treeProgressVenom||0);
+                    let container = document.getElementById('ninja-tree-container'); container.innerHTML = '';
+                    // Shadow Path (left) — violet themed
+                    let shadowCol = document.createElement('div'); shadowCol.className = 'w-1/2 flex flex-col gap-2 relative';
+                    shadowCol.innerHTML = '<div class="text-center font-bold text-violet-500 border-b border-violet-700 pb-1 sticky top-0 bg-gray-900 z-10 drop-shadow-md">SHADOW PATH</div>';
+                    for(let i=0; i<25; i++) {
+                        let isUnlocked = i < (player.treeProgressShadow||0);
+                        let isNext = i === (player.treeProgressShadow||0);
+                        let isSkillNode = (i===4 || i===9 || i===14);
+                        let skillIdx = i===4 ? 3 : i===9 ? 4 : i===14 ? 5 : null;
+                        let btn = document.createElement('button');
+                        btn.className = `p-2 rounded text-[10px] md:text-xs font-bold border-2 transition-all shadow-md ${isUnlocked?'bg-violet-900 border-violet-500 text-violet-200':isNext?'bg-gray-700 border-yellow-400 text-white animate-pulse shadow-[0_0_10px_rgba(250,204,21,0.5)]':'bg-gray-800 border-gray-700 text-gray-500 opacity-60'}`;
+                        btn.disabled = !isNext;
+                        if(isSkillNode) { btn.innerHTML = `<span class="text-lg">🌑</span><br>Unlock:<br>${player.data.skills[skillIdx].name}`; btn.classList.add('h-20'); }
+                        else { btn.innerHTML = `❓ Random<br>Attribute`; }
+                        if(isNext) btn.onclick = () => unlockNextNode('shadow', i);
+                        shadowCol.appendChild(btn);
+                    }
+                    container.appendChild(shadowCol);
+                    // Venom Path (right) — lime themed
+                    let venomCol = document.createElement('div'); venomCol.className = 'w-1/2 flex flex-col gap-2 relative';
+                    venomCol.innerHTML = '<div class="text-center font-bold text-lime-500 border-b border-lime-700 pb-1 sticky top-0 bg-gray-900 z-10 drop-shadow-md">VENOM PATH</div>';
+                    for(let i=0; i<25; i++) {
+                        let isUnlocked = i < (player.treeProgressVenom||0);
+                        let isNext = i === (player.treeProgressVenom||0);
+                        let isSkillNode = (i===4 || i===9 || i===14);
+                        let skillIdx = i===4 ? 6 : i===9 ? 7 : i===14 ? 8 : null;
+                        let btn = document.createElement('button');
+                        btn.className = `p-2 rounded text-[10px] md:text-xs font-bold border-2 transition-all shadow-md ${isUnlocked?'bg-lime-900 border-lime-500 text-lime-200':isNext?'bg-gray-700 border-yellow-400 text-white animate-pulse shadow-[0_0_10px_rgba(250,204,21,0.5)]':'bg-gray-800 border-gray-700 text-gray-500 opacity-60'}`;
+                        btn.disabled = !isNext;
+                        if(isSkillNode) {
+                            let skillName = (player.data.skills[skillIdx]) ? player.data.skills[skillIdx].name : 'Skill';
+                            btn.innerHTML = `<span class="text-lg">🐍</span><br>Unlock:<br>${skillName}`;
+                            btn.classList.add('h-20');
+                        } else { btn.innerHTML = `❓ Random<br>Attribute`; }
+                        if(isNext) btn.onclick = () => unlockNextNode('venom', i);
+                        venomCol.appendChild(btn);
+                    }
+                    container.appendChild(venomCol);
+                }
             }
-            switchScreen('screen-skilltree');
 
             // Render enhancements section
             let enhContainer = document.getElementById('skill-tree-enhancements');
@@ -2377,6 +2503,65 @@
                     else {
                         globalProgression.attributes[picked] = (globalProgression.attributes[picked] || 1) + 1;
                         showFloatText('hub-avatar', `+1 ${picked.toUpperCase()}`, 'text-cyan-400');
+                        let newEnh = rollEnhancement(); globalProgression.skillTreeEnhancements.push(newEnh); showEnhancementPopup(newEnh);
+                    }
+                }
+            }
+            else if (path === 'holy' || path === 'guardian') {
+                player.skillPoints--;
+                let attrs = ['hp', 'tenacity', 'agility', 'willpower', 'resistance', 'reflexes', 'fury'];
+                let picked = attrs[Math.floor(Math.random() * attrs.length)];
+                if(path === 'holy') {
+                    player.treeProgressHoly = (player.treeProgressHoly||0) + 1;
+                    if(index === 4) { if(!player.unlockedSkills.includes(3)) player.unlockedSkills.push(3); }
+                    else if(index === 9) { if(!player.unlockedSkills.includes(4)) player.unlockedSkills.push(4); }
+                    else if(index === 14) { if(!player.unlockedSkills.includes(5)) player.unlockedSkills.push(5); }
+                    else {
+                        globalProgression.attributes[picked] = (globalProgression.attributes[picked] || 1) + 1;
+                        showFloatText('hub-avatar', `+1 ${picked.toUpperCase()}`, 'text-yellow-400');
+                        let newEnh = rollEnhancement(); globalProgression.skillTreeEnhancements.push(newEnh); showEnhancementPopup(newEnh);
+                    }
+                } else {
+                    player.treeProgressGuardian = (player.treeProgressGuardian||0) + 1;
+                    if(index === 4) { if(!player.unlockedSkills.includes(6)) player.unlockedSkills.push(6); }
+                    else if(index === 9) { if(!player.unlockedSkills.includes(7)) player.unlockedSkills.push(7); }
+                    else if(index === 14) { if(!player.unlockedSkills.includes(8)) player.unlockedSkills.push(8); }
+                    else {
+                        globalProgression.attributes[picked] = (globalProgression.attributes[picked] || 1) + 1;
+                        showFloatText('hub-avatar', `+1 ${picked.toUpperCase()}`, 'text-emerald-400');
+                        let newEnh = rollEnhancement(); globalProgression.skillTreeEnhancements.push(newEnh); showEnhancementPopup(newEnh);
+                    }
+                }
+            }
+            else if (path === 'shadow' || path === 'venom') {
+                player.skillPoints--;
+                let attrs = ['hp', 'tenacity', 'agility', 'willpower', 'resistance', 'reflexes', 'fury'];
+                let picked = attrs[Math.floor(Math.random() * attrs.length)];
+                if(path === 'shadow') {
+                    player.treeProgressShadow = (player.treeProgressShadow||0) + 1;
+                    if(index === 4) { if(!player.unlockedSkills.includes(3)) player.unlockedSkills.push(3); }
+                    else if(index === 9) { if(!player.unlockedSkills.includes(4)) player.unlockedSkills.push(4); }
+                    else if(index === 14) { if(!player.unlockedSkills.includes(5)) player.unlockedSkills.push(5); }
+                    else {
+                        globalProgression.attributes[picked] = (globalProgression.attributes[picked] || 1) + 1;
+                        showFloatText('hub-avatar', `+1 ${picked.toUpperCase()}`, 'text-violet-400');
+                        let newEnh = rollEnhancement(); globalProgression.skillTreeEnhancements.push(newEnh); showEnhancementPopup(newEnh);
+                    }
+                } else {
+                    player.treeProgressVenom = (player.treeProgressVenom||0) + 1;
+                    if(index === 4) { if(!player.unlockedSkills.includes(6)) player.unlockedSkills.push(6); }
+                    else if(index === 9) { if(!player.unlockedSkills.includes(7)) player.unlockedSkills.push(7); }
+                    else if(index === 14) {
+                        if(player.data.skills[8] && !player.unlockedSkills.includes(8)) {
+                            player.unlockedSkills.push(8);
+                        } else {
+                            globalProgression.attributes[picked] = (globalProgression.attributes[picked] || 1) + 1;
+                            showFloatText('hub-avatar', `+1 ${picked.toUpperCase()}`, 'text-lime-400');
+                            let newEnh2 = rollEnhancement(); globalProgression.skillTreeEnhancements.push(newEnh2); showEnhancementPopup(newEnh2);
+                        }
+                    } else {
+                        globalProgression.attributes[picked] = (globalProgression.attributes[picked] || 1) + 1;
+                        showFloatText('hub-avatar', `+1 ${picked.toUpperCase()}`, 'text-lime-400');
                         let newEnh = rollEnhancement(); globalProgression.skillTreeEnhancements.push(newEnh); showEnhancementPopup(newEnh);
                     }
                 }
@@ -3238,7 +3423,7 @@
                 let slot = document.createElement('div');
                 slot.style.cssText = 'width:40px;height:40px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0;position:relative;';
                 let actionBtn = document.createElement('button');
-                actionBtn.style.cssText = 'font-size:0.55rem;padding:1px 3px;border-radius:3px;font-weight:bold;cursor:pointer;border:none;line-height:1;';
+                actionBtn.style.cssText = 'font-size:0.75rem;padding:4px 8px;border-radius:5px;font-weight:bold;cursor:pointer;border:none;line-height:1;min-width:28px;min-height:24px;';
                 if(i >= numUnlocked) {
                     slot.style.cssText += 'background:#1f2937;border:1px solid #374151;color:#6b7280;cursor:not-allowed;';
                     slot.innerHTML = '🔒';
