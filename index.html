@@ -135,6 +135,26 @@
                         <div class="bg-blue-900 rounded px-1 py-0.5 text-blue-300">DEF: LOW</div>
                     </div>
                 </button>
+                <button onclick="startGame('paladin')" class="flex-1 p-6 rounded-2xl border-2 border-yellow-800 hover:border-yellow-500 text-center transition-all active:scale-95 shadow-2xl hover:shadow-[0_0_20px_rgba(234,179,8,0.4)]" style="background: linear-gradient(145deg, #1c1500, #2d2200);">
+                    <div class="text-6xl mb-3" style="animation: float 3s infinite ease-in-out; animation-delay: 0.5s;">🛡️</div>
+                    <div class="text-xl font-black text-yellow-400 mb-2">PALADIN</div>
+                    <div class="text-xs text-gray-400 leading-relaxed">High HP · Hammer Attacks<br>Reflect & Stuns</div>
+                    <div class="mt-3 grid grid-cols-3 gap-1 text-[10px]">
+                        <div class="bg-red-900 rounded px-1 py-0.5 text-red-300">HP: HIGH</div>
+                        <div class="bg-orange-900 rounded px-1 py-0.5 text-orange-300">DMG: MED</div>
+                        <div class="bg-blue-900 rounded px-1 py-0.5 text-blue-300">DEF: HIGH</div>
+                    </div>
+                </button>
+                <button onclick="startGame('ninja')" class="flex-1 p-6 rounded-2xl border-2 border-green-800 hover:border-green-500 text-center transition-all active:scale-95 shadow-2xl hover:shadow-[0_0_20px_rgba(34,197,94,0.4)]" style="background: linear-gradient(145deg, #0a1c0a, #101e10);">
+                    <div class="text-6xl mb-3" style="animation: float 3s infinite ease-in-out; animation-delay: 1.5s;">🥷</div>
+                    <div class="text-xl font-black text-green-400 mb-2">NINJA</div>
+                    <div class="text-xs text-gray-400 leading-relaxed">Low HP · Fast Attacks<br>Poison & Smoke</div>
+                    <div class="mt-3 grid grid-cols-3 gap-1 text-[10px]">
+                        <div class="bg-red-900 rounded px-1 py-0.5 text-red-300">HP: LOW</div>
+                        <div class="bg-orange-900 rounded px-1 py-0.5 text-orange-300">DMG: HIGH</div>
+                        <div class="bg-blue-900 rounded px-1 py-0.5 text-blue-300">DEF: LOW</div>
+                    </div>
+                </button>
             </div>
         </div>
     </div>
@@ -1012,7 +1032,7 @@
                     { name: 'Stomp', type: 'attack', mult: 1, effect: { healBlock: 1 }, self_effect: { healPct: 0.05 }, cd: 7, color: 'bg-stone-800', desc: 'Dmg, Heal block 1t, +5% Self-Heal' },
                     { name: 'Soul Remover', type: 'attack', mult: 1, hits: 3, target: 'random', self_effect: { defDown: 0.15, turns: 2 }, cd: 8, color: 'bg-purple-800', desc: '3x random hits. -15% self def (2t)' },
                     { name: 'Eruption', type: 'buff', mult: 0, self_effect: { regenPct: 0.20, turns: 2, dmgUp: 0.03, dmgUpTurns: 3 }, cd: 10, color: 'bg-red-600', desc: 'Regen 20% HP/t (2t), +3% Dmg (3t)' },
-                    { name: 'Def Up', type: 'buff', mult: 0, self_effect: { defUp: 0.50, turns: 3, blockHit: true, blockChance: 0.50 }, cd: 8, color: 'bg-blue-700', desc: '+50% Def (3t), 50% block hit (1t)' }
+                    { name: 'Def Up', type: 'buff', mult: 0, self_effect: { defUp: 0.50, turns: 3, blockHit: true, blockChance: 0.50, blockTurns: 3 }, cd: 8, color: 'bg-blue-700', desc: '+50% Def (3t), 50% block hit (3t)' }
                 ]
             },
             mage: {
@@ -1029,6 +1049,33 @@
                     { name: 'Ice Spike', type: 'attack', mult: 1.05, effect: { stunChance: 0.20 }, cd: 5, color: 'bg-blue-400', desc: 'Base + 5%, 20% chance to stun' },
                     { name: 'Ice Shield', type: 'buff', mult: 0, self_effect: { iceShield: true, turns: 3 }, cd: 5, color: 'bg-cyan-500', desc: '-50% dmg taken (3t)' },
                     { name: 'Ice Fists', type: 'attack', special: 'hpPctDmg', hpPctDmg: 0.30, cd: 6, color: 'bg-blue-600', desc: 'Deals 30% of target HP' }
+                ]
+            },
+            paladin: {
+                name: 'Paladin', icon: '🔨', avatar: '🛡️', baseHp: 45, baseDmg: 6,
+                skills: [
+                    { name: 'Strike', type: 'attack', mult: 1, cd: 0, color: 'bg-gray-700', desc: 'Base damage' },
+                    { name: 'Iron Shield', type: 'buff', mult: 0, self_effect: { reflect: 0.50, reflectTurns: 1, regenPct: 0.10, turns: 2 }, cd: 5, color: 'bg-gray-500', desc: 'Reflect 50% dmg (1t), Heal 10% HP/t (2t)' },
+                    { name: 'Swinging Hammer', type: 'attack', mult: 1.05, effect: { stunChance: 1.0 }, cd: 8, color: 'bg-yellow-600', desc: '+5% dmg, stun 1t' },
+                    { name: 'Thirsty', type: 'buff', mult: 0, self_effect: { healPct: 0.30, defUp: 0.30, turns: 2, reflect: 0.60, reflectTurns: 1 }, cd: 8, color: 'bg-green-700', desc: 'Heal 30%, +30% Def (2t), Reflect 60% (1t)' },
+                    { name: 'Shield Explosion', type: 'buff', mult: 0, self_effect: { doubleDamageTaken: true, reflect: 1.00, reflectTurns: 1, turns: 1 }, cd: 7, color: 'bg-red-800', desc: 'Take 2x dmg, Reflect 100% dmg taken (1t)' },
+                    { name: 'Hammered', type: 'attack', mult: 2, target: 'all', cd: 6, color: 'bg-orange-600', desc: '2x base dmg to ALL enemies' },
+                    { name: 'Dash Charge', type: 'attack', mult: 1.05, self_effect: { dodgeTurns: 2 }, cd: 7, color: 'bg-cyan-700', desc: '+5% dmg, dodge 2t' },
+                    { name: 'Overhead Hit', type: 'attack', mult: 1, effect: { stunChance: 1.0 }, cd: 57, color: 'bg-stone-700', desc: 'Base dmg, stun 1t' },
+                    { name: 'Lose Control', type: 'attack', mult: 1.02, self_effect: { healPct: 0.30, reflect: 2.00, reflectTurns: 1 }, cd: 10, color: 'bg-purple-800', desc: '+2% dmg, Heal 30%, Reflect 200% (1t)' }
+                ]
+            },
+            ninja: {
+                name: 'Ninja', icon: '🌟', avatar: '🥷', baseHp: 35, baseDmg: 7,
+                skills: [
+                    { name: 'Shuriken Hit', type: 'attack', mult: 1, cd: 0, color: 'bg-gray-600', desc: 'Base damage' },
+                    { name: 'Face Kick', type: 'attack', mult: 1.06, cd: 5, color: 'bg-orange-500', desc: '+6% dmg' },
+                    { name: 'Throw', type: 'attack', mult: 1.01, effect: { stunChance: 1.0 }, cd: 8, color: 'bg-yellow-500', desc: '+1% dmg, stun 1t' },
+                    { name: 'Poison Shuriken', type: 'attack', mult: 1.03, effect: { poison: true, poisonTurns: 2 }, cd: 6, color: 'bg-green-600', desc: '+3% dmg, Poison (2t)' },
+                    { name: 'Shuriken Rain', type: 'attack', mult: 1.10, target: 'all', effect: { poison: true, poisonTurns: 2 }, cd: 9, color: 'bg-green-800', desc: '+10% dmg to ALL, Poison all' },
+                    { name: 'Backhand Slap', type: 'attack', mult: 1.01, effect: { stunChance: 1.0, stunTurns: 3, defDown: 0.10 }, cd: 11, color: 'bg-red-700', desc: '+1% dmg, stun 3t, -10% def' },
+                    { name: 'Smoke Bomb', type: 'buff', mult: 0, special: 'smokeBomb', cd: 9, color: 'bg-gray-500', desc: 'Dodge 3t, Poison & dmg all enemies' },
+                    { name: 'Huge Shuriken', type: 'attack', mult: 1.50, cd: 8, color: 'bg-yellow-400', desc: '+50% dmg' }
                 ]
             }
         };
@@ -1310,6 +1357,10 @@
                 return { hp: 10, tenacity: 1, agility: 1, willpower: 1, resistance: 1, reflexes: 1, fury: 1, devastation: 0 };
             } else if (classId === 'mage') {
                 return { hp: 1, tenacity: 1, agility: 1, willpower: 1, resistance: 1, reflexes: 10, fury: 1, devastation: 0 };
+            } else if (classId === 'paladin') {
+                return { hp: 1, tenacity: 10, agility: 1, willpower: 1, resistance: 1, reflexes: 1, fury: 1, devastation: 0 };
+            } else if (classId === 'ninja') {
+                return { hp: 1, tenacity: 1, agility: 10, willpower: 1, resistance: 1, reflexes: 1, fury: 1, devastation: 0 };
             }
             return { hp: 1, tenacity: 1, agility: 1, willpower: 1, resistance: 1, reflexes: 1, fury: 1, devastation: 0 };
         }
@@ -1322,6 +1373,11 @@
             } else if (classId === 'mage') {
                 if (attrId === 'hp') return 50;
                 if (attrId === 'willpower') return 50;
+            } else if (classId === 'paladin') {
+                if (attrId === 'willpower') return 25;
+                if (attrId === 'hp') return 9999;
+            } else if (classId === 'ninja') {
+                if (attrId === 'hp') return 9999;
             }
             if (attrId === 'willpower') return 50;
             if (attrId === 'devastation') return 100;
@@ -2009,6 +2065,8 @@
                 let classId = player ? player.classId : 'warrior';
                 if (classId === 'warrior') { weaponName = 'Axe'; weaponIcon = '🪓'; }
                 else if (classId === 'mage') { weaponName = 'Staff'; weaponIcon = '🪄'; }
+                else if (classId === 'paladin') { weaponName = 'Hammer'; weaponIcon = '🔨'; }
+                else if (classId === 'ninja') { weaponName = 'Shuriken'; weaponIcon = '🌟'; }
             }
 
             let SLOT_ICONS = { head:'🪖', shoulders:'🛡️', chest:'🦺', arms:'🦾', waist:'🪢', legs:'👖', boots:'🥾', necklace:'📿', ring:'💍', cape:'🧥', weapon: weaponIcon };
@@ -2994,7 +3052,7 @@
             { id: 'stun', name: 'Bash', cd: 5, desc: 'Stuns for 1 turn' },
             { id: 'dodge', name: 'Evasive Maneuver', cd: 5, desc: 'Dodges next attack' },
             { id: 'poison', name: 'Venom', cd: 5, desc: 'Reduces healing by 50%' },
-            { id: 'burn', name: 'Ignite', cd: 5, desc: '20% max HP damage over 1 turn' },
+            { id: 'burn', name: 'Ignite', cd: 5, desc: '5% max HP damage over 1 turn' },
             { id: 'guard', name: 'Guard', cd: 5, desc: 'Reduces damage by 50% for 2 turns' }
         ];
 
@@ -3290,6 +3348,8 @@
             if(player.activeBuffs && player.activeBuffs.some(b => b.type === 'fire_shield')) activeBuffsHtml += `<span class="bg-orange-800 text-xs px-1 rounded border border-orange-400 shadow-md">🔥Shield</span>`;
             if(player.activeBuffs && player.activeBuffs.some(b => b.type === 'ice_shield')) activeBuffsHtml += `<span class="bg-cyan-800 text-xs px-1 rounded border border-cyan-400 shadow-md">❄️Shield</span>`;
             if(player.dodgeTurns > 0) activeBuffsHtml += `<span class="bg-gray-400 text-black text-xs px-1 rounded shadow-md">💨Dodge</span>`;
+            if(player.activeBuffs && player.activeBuffs.some(b => b.type === 'skill_reflect')) activeBuffsHtml += `<span class="bg-orange-800 text-xs px-1 rounded border border-orange-400 shadow-md">🔄Reflect</span>`;
+            if(player.activeBuffs && player.activeBuffs.some(b => b.type === 'double_damage_taken')) activeBuffsHtml += `<span class="bg-red-800 text-xs px-1 rounded border border-red-400 shadow-md">⚠️2xDmg</span>`;
             
             const buffsEl = document.getElementById('combat-active-buffs'); if (buffsEl) buffsEl.innerHTML = activeBuffsHtml;
 
@@ -3452,7 +3512,7 @@
             if(player.activeBuffs && player.activeBuffs.length > 0) { 
                 let burnDmg = 0;
                 player.activeBuffs.forEach(b => {
-                    if(b.type === 'burn') burnDmg += Math.floor(player.maxHp * 0.2);
+                    if(b.type === 'burn') burnDmg += Math.floor(player.maxHp * 0.05);
                     b.turns--; 
                 });
                 
@@ -3460,6 +3520,21 @@
                     player.currentHp -= burnDmg;
                     showFloatText('player-avatar-container', `-${burnDmg}`, 'text-red-500');
                     addLog(`Burn damage!`, 'text-red-500');
+                    playSound('hit');
+                }
+
+                // Poison tick damage (1% per stack, max 2 stacks)
+                let poisonBuffs = player.activeBuffs.filter(b => b.type === 'poison');
+                let poisonStacks = Math.min(poisonBuffs.length, 2);
+                if(poisonBuffs.length > 2) {
+                    let keptPoison = poisonBuffs.slice(0, 2);
+                    player.activeBuffs = player.activeBuffs.filter(b => b.type !== 'poison').concat(keptPoison);
+                }
+                let poisonDmg = poisonStacks * Math.floor(player.maxHp * 0.01);
+                if(poisonDmg > 0) {
+                    player.currentHp -= poisonDmg;
+                    showFloatText('player-avatar-container', '-' + poisonDmg, 'text-green-500');
+                    addLog('Poison damage! (' + poisonStacks + ' stacks)', 'text-green-500');
                     playSound('hit');
                 }
                 
@@ -3574,8 +3649,14 @@
                             if(skill.effect.defDown) { target.defReduction = Math.min(1, (target.defReduction || 0) + skill.effect.defDown); }
                             if(skill.effect.healBlock) { target.healBlock = skill.effect.healBlock; }
                             if(skill.effect.stunChance && Math.random() < skill.effect.stunChance) {
-                                target.stunned = (target.stunned || 0) + 1;
+                                target.stunned = (target.stunned || 0) + (skill.effect.stunTurns || 1);
                                 showFloatText(`enemy-card-${tIdx}`, `STUNNED`, 'text-yellow-400');
+                            }
+                            if(skill.effect.poison) {
+                                let currentPoison = target.poisonTurns || 0;
+                                target.poisonTurns = Math.max(currentPoison, skill.effect.poisonTurns || 2);
+                                target.healBlock = Math.max(target.healBlock || 0, skill.effect.poisonTurns || 2);
+                                showFloatText('enemy-card-' + tIdx, 'POISON', 'text-green-400');
                             }
                         }
                     });
@@ -3593,6 +3674,19 @@
                 playSound('buff'); triggerAnim('combat-player-avatar', 'anim-heal'); addLog(`Used ${skill.name}!`, "text-white font-bold");
             }
 
+            if(skill.special === 'smokeBomb') {
+                let smBaseDmg = getBaseDamage();
+                enemies.forEach((e, i) => {
+                    if(e.currentHp <= 0) return;
+                    e.currentHp = Math.max(0, e.currentHp - smBaseDmg);
+                    e.poisonTurns = Math.max(e.poisonTurns || 0, 2);
+                    e.healBlock = Math.max(e.healBlock || 0, 2);
+                    showFloatText('enemy-card-' + i, '-' + smBaseDmg, 'text-yellow-300');
+                });
+                player.dodgeTurns = 3;
+                addLog('Smoke Bomb! Dodge 3t, damaged & poisoned all enemies!', 'text-gray-300 font-bold');
+            }
+
             if(skill.self_effect) {
                 let healMult = player.activeBuffs.some(b => b.type === 'poison') ? 0.5 : 1.0;
                 if(skill.self_effect.healPct) { let h = Math.floor(player.maxHp * skill.self_effect.healPct * healMult); player.currentHp = Math.min(player.maxHp, player.currentHp + h); showFloatText('player-avatar-container', `+${h}`, 'text-green-400'); }
@@ -3604,9 +3698,20 @@
                 if(skill.self_effect.dmgUp) { player.activeBuffs.push({ type: 'dmg', val: 1 + skill.self_effect.dmgUp, turns: skill.self_effect.dmgUpTurns || skill.self_effect.turns }); }
                 if(skill.self_effect.blockHit) {
                     if(Math.random() < (skill.self_effect.blockChance || 0.50)) {
-                        player.activeBuffs.push({ type: 'block_hit', turns: 1 });
+                        player.activeBuffs.push({ type: 'block_hit', turns: skill.self_effect.blockTurns || 3 });
                         addLog(`Block stance! May block next hit!`, 'text-blue-300 font-bold');
                     }
+                }
+                if(skill.self_effect.reflect) {
+                    player.activeBuffs.push({ type: 'skill_reflect', val: skill.self_effect.reflect, turns: skill.self_effect.reflectTurns || 1 });
+                    addLog('Reflecting ' + Math.floor(skill.self_effect.reflect * 100) + '% damage!', 'text-orange-300 font-bold');
+                }
+                if(skill.self_effect.doubleDamageTaken) {
+                    player.activeBuffs.push({ type: 'double_damage_taken', turns: skill.self_effect.turns || 1 });
+                    addLog('Taking double damage!', 'text-red-400 font-bold');
+                }
+                if(skill.self_effect.dodgeTurns) {
+                    player.dodgeTurns = skill.self_effect.dodgeTurns;
                 }
             }
 
@@ -3693,7 +3798,7 @@
             }
             else if (action === 'poison') {
                 playSound('hit'); triggerAnim(`enemy-card-${enemyIdx}`, 'anim-strike'); setTimeout(() => triggerAnim('combat-player-avatar', 'anim-shake'), 150);
-                player.activeBuffs.push({type: 'poison', turns: 3});
+                player.activeBuffs.push({type: 'poison', turns: 2});
                 addLog(`${e.name} used Venom!`, "text-green-500 font-bold");
                 let dmg = Math.floor(e.baseDmg * 0.5); 
                 dealDamageToPlayer(dmg, e);
@@ -3785,8 +3890,23 @@
             if(player.activeBuffs.some(b => b.type === 'ice_shield')) {
                 dmg = Math.max(1, Math.floor(dmg * 0.5));
             }
+
+            // Double damage taken (Shield Explosion)
+            let doubleBuff = player.activeBuffs.find(b => b.type === 'double_damage_taken');
+            if(doubleBuff) { dmg = dmg * 2; }
             
             player.currentHp -= dmg;
+
+            // Skill reflect (Paladin skills)
+            let reflectBuff = player.activeBuffs.find(b => b.type === 'skill_reflect');
+            if(reflectBuff && attackerEnemy) {
+                let reflectDmg = Math.floor(dmg * reflectBuff.val);
+                attackerEnemy.currentHp = Math.max(0, attackerEnemy.currentHp - reflectDmg);
+                addLog('Reflected ' + reflectDmg + ' damage!', 'text-orange-400 font-bold');
+                let eIdx = enemies.indexOf(attackerEnemy);
+                if(eIdx >= 0) showFloatText('enemy-card-' + eIdx, '-' + reflectDmg, 'text-orange-400');
+            }
+
             // Crit received: larger, more vigorous animation and sound
             if (isCritHit) {
                 showFloatText('player-avatar-container', `-${dmg} CRIT!`, 'text-red-400 font-black text-2xl drop-shadow-[0_0_10px_rgba(239,68,68,0.9)]');
