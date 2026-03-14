@@ -155,6 +155,16 @@
                         <div class="bg-blue-900 rounded px-1 py-0.5 text-blue-300">DEF: LOW</div>
                     </div>
                 </button>
+                <button onclick="startGame('cleric')" class="flex-1 p-6 rounded-2xl border-2 border-pink-800 hover:border-pink-500 text-center transition-all active:scale-95 shadow-2xl hover:shadow-[0_0_20px_rgba(236,72,153,0.4)]" style="background: linear-gradient(145deg, #1c0a15, #2d1022);">
+                    <div class="text-6xl mb-3" style="animation: float 3s infinite ease-in-out; animation-delay: 2s;">⛪</div>
+                    <div class="text-xl font-black text-pink-400 mb-2">CLERIC</div>
+                    <div class="text-xs text-gray-400 leading-relaxed">Low HP · Healer<br>Plagues & Revivals</div>
+                    <div class="mt-3 grid grid-cols-3 gap-1 text-[10px]">
+                        <div class="bg-red-900 rounded px-1 py-0.5 text-red-300">HP: LOW</div>
+                        <div class="bg-orange-900 rounded px-1 py-0.5 text-orange-300">DMG: LOW</div>
+                        <div class="bg-blue-900 rounded px-1 py-0.5 text-blue-300">HEAL: HIGH</div>
+                    </div>
+                </button>
             </div>
         </div>
     </div>
@@ -608,6 +618,17 @@
                 </div>
             </div>
 
+            <!-- Cleric Tree -->
+            <div id="tree-cleric" class="hidden w-full">
+                <div class="flex justify-between items-center mb-4">
+                    <p class="text-xs text-gray-400">Choose a path! Grants random Attributes.</p>
+                    <div class="text-sm font-bold text-white bg-gray-800 px-2 py-1 rounded shadow-inner border border-gray-700">Prog: <span id="tree-progress-cleric" class="text-purple-400">0</span></div>
+                </div>
+                <div class="flex gap-2 w-full h-96 overflow-y-auto p-2 bg-gray-900 border border-gray-700 rounded-xl shadow-inner mb-4" id="cleric-tree-container">
+                    <!-- Javascript Populated Columns -->
+                </div>
+            </div>
+
             <div id="skill-tree-enhancements" class="w-full mt-4"></div>
 
         </div>
@@ -813,7 +834,7 @@
                     <div id="player-stun-indicator" class="absolute -top-3 text-xl hidden">😵</div>
                 </div>
                 <div class="w-3/4 pl-3 relative">
-                    <div id="player-shield-indicator" class="absolute -top-1 right-0 text-xl hidden">🛡️</div><div id="player-regen-indicator" class="absolute -top-1 right-8 text-xl hidden animate-pulse">💖</div>
+                    <div id="player-shield-indicator" class="absolute -top-1 right-0 text-xl hidden">🛡️</div><div id="player-regen-indicator" class="absolute -top-1 right-8 text-xl hidden animate-pulse">💖</div><div id="player-dizzy-indicator" class="absolute -top-1 right-16 text-xl hidden animate-pulse">💫</div>
                     <div class="flex justify-between items-end"><div class="text-md font-bold text-blue-400"><span class="text-xs text-gray-400 font-normal" id="combat-player-class">Class</span></div><div class="text-xs font-mono text-gray-300" id="combat-player-hp-text">100/100</div></div>
                     <div class="flex items-center gap-1 mt-0.5"><span class="text-xs font-bold text-red-400">HP</span><div class="health-bar-container flex-1"><div id="combat-player-hp" class="health-bar"></div></div></div><div class="flex items-center gap-1 mt-0.5"><span class="text-xs font-bold text-yellow-400">XP</span><div class="xp-bar-container flex-1 !h-1 !mt-0" id="combat-xp-bar-container"><div id="combat-player-xp" class="xp-bar"></div></div></div><div class="flex gap-1 mt-1" id="combat-active-buffs"></div>
                 </div>
@@ -1099,6 +1120,20 @@
                     { name: 'Smoke Bomb', type: 'buff', mult: 0, special: 'smokeBomb', cd: 9, color: 'bg-gray-500', desc: 'Dodge 3t, Poison & dmg all enemies' },
                     { name: 'Huge Shuriken', type: 'attack', mult: 1.50, cd: 8, color: 'bg-yellow-400', desc: '+50% dmg' }
                 ]
+            },
+            cleric: {
+                name: 'Cleric', icon: '⛪', avatar: '⛪', baseHp: 25, baseDmg: 10,
+                skills: [
+                    { name: 'Hug', type: 'attack', mult: 1, cd: 0, color: 'bg-pink-700', desc: 'Deal base damage' },
+                    { name: 'Deadly Kiss', type: 'attack', mult: 1.01, cd: 5, color: 'bg-pink-500', desc: 'Base +1% dmg, heal 2% life', self_effect: { healPct: 0.02 } },
+                    { name: 'Dizzy', type: 'attack', mult: 1.05, cd: 7, color: 'bg-purple-500', desc: 'Base +5%, heal buff 10% (5t), 2 poison', effect: { poisonStacks: 2, poisonTurns: 5 }, self_effect: { healingBuff: 0.10, turns: 5 } },
+                    { name: 'Heal', type: 'heal', mult: 0, cd: 10, color: 'bg-green-500', desc: 'Full HP heal, +10% dmg', self_effect: { fullHeal: true, dmgBuff: 0.10, turns: 999 } },
+                    { name: 'Mud', type: 'debuff', mult: 0, cd: 10, color: 'bg-yellow-800', desc: '50% skip (3t), +30% dmg taken', effect: { skipChance: 0.50, skipTurns: 3, dmgTaken: 0.30, dmgTakenTurns: 3 } },
+                    { name: 'Re Alive', type: 'buff', mult: 0, cd: 0, color: 'bg-yellow-400', desc: 'Revive at 50% HP, +30% dmg (1x)', self_effect: { reAlive: true }, special: 'reAlive' },
+                    { name: 'Infection', type: 'attack', mult: 1, cd: 7, color: 'bg-green-800', desc: 'Base dmg + 5 bleed + 1 burn + 2 poison', effect: { bleedStacks: 5, bleedTurns: 3, burnStacks: 1, burnTurns: 3, poisonStacks: 2, poisonTurns: 3 } },
+                    { name: 'Hot Water', type: 'attack', mult: 1.03, cd: 7, color: 'bg-orange-600', desc: 'Base +3%, 1 burn stack', effect: { burnStacks: 1, burnTurns: 3 } },
+                    { name: 'Scratch', type: 'attack', mult: 1.03, cd: 6, color: 'bg-red-600', desc: 'Base +3%, 2 bleed stacks', effect: { bleedStacks: 2, bleedTurns: 3 } }
+                ]
             }
         };
 
@@ -1192,7 +1227,7 @@
             classId: 'warrior', data: CLASSES['warrior'], lvl: 1, xp: 0, maxHp: 0, currentHp: 0, shield: 0,
             statPoints: 0, treeProgress: 0, treeBonusHp: 0, treeBonusDmg: 0, treeBonusDef: 0, treeBonusRegen: 0,
             treeProgressFire: 0, treeProgressIce: 0, treeProgressOffense: 0, treeProgressDefense: 0,
-            treeProgressHoly: 0, treeProgressGuardian: 0, treeProgressShadow: 0, treeProgressVenom: 0,
+            treeProgressHoly: 0, treeProgressGuardian: 0, treeProgressShadow: 0, treeProgressVenom: 0, treeProgressDivine: 0, treeProgressPlague: 0,
             skillPoints: 0, unlockedSkills: [0, 1, 2], equippedSkills: [0, 1, 2, null, null], 
             skillCooldowns: {}, regenBuffs: [], activeBuffs: [],
             stunned: 0, bleedStacks: 0, bleedTurns: 0, dodgeTurns: 0,
@@ -1296,6 +1331,9 @@
                 if(player.treeProgressGuardian === undefined) player.treeProgressGuardian = 0;
                 if(player.treeProgressShadow === undefined) player.treeProgressShadow = 0;
                 if(player.treeProgressVenom === undefined) player.treeProgressVenom = 0;
+                if(player.treeProgressDivine === undefined) player.treeProgressDivine = 0;
+                if(player.treeProgressPlague === undefined) player.treeProgressPlague = 0;
+                if(globalProgression.attributes.happiness === undefined && player.classId === 'cleric') globalProgression.attributes.happiness = 0;
 
                 if (globalProgression.lastQuestDate !== new Date().toDateString()) {
                     globalProgression.questsCompletedToday = 0;
@@ -1355,7 +1393,7 @@
         function calculateMaxHp() {
             let equipStats = getEquipStats();
             let a = globalProgression.attributes;
-            let base = player.data.baseHp + ((player.lvl - 1) * 15) + (a.hp * 12) + (a.tenacity * 2) + (a.agility * 2) + (a.resistance * 2) + player.treeBonusHp + equipStats.hp + getEquipBonusStat('bonusHp');
+            let base = player.data.baseHp + ((player.lvl - 1) * 15) + (a.hp * 12) + (a.tenacity * 2) + (a.agility * 2) + (a.resistance * 2) + ((a.happiness || 0) * 2) + player.treeBonusHp + equipStats.hp + getEquipBonusStat('bonusHp');
             // Apply HP Boost enhancements
             let hpBoostMult = 1;
             (globalProgression.skillTreeEnhancements || []).forEach(enh => {
@@ -1388,6 +1426,8 @@
                 return { hp: 1, tenacity: 10, agility: 1, willpower: 1, resistance: 1, reflexes: 1, fury: 1, devastation: 0 };
             } else if (classId === 'ninja') {
                 return { hp: 1, tenacity: 1, agility: 10, willpower: 1, resistance: 1, reflexes: 1, fury: 1, devastation: 0 };
+            } else if (classId === 'cleric') {
+                return { hp: 1, tenacity: 1, agility: 1, willpower: 1, resistance: 1, reflexes: 1, fury: 1, devastation: 2, happiness: 0 };
             }
             return { hp: 1, tenacity: 1, agility: 1, willpower: 1, resistance: 1, reflexes: 1, fury: 1, devastation: 0 };
         }
@@ -1407,6 +1447,8 @@
             } else if (classId === 'ninja') {
                 if (attrId === 'willpower') return 75;
                 if (attrId === 'hp') return 40;
+            } else if (classId === 'cleric') {
+                if (attrId === 'willpower') return 20;
             }
             if (attrId === 'willpower') return 50;
             if (attrId === 'devastation') return 100;
@@ -1440,7 +1482,7 @@
             player.maxHp = calculateMaxHp(); if(player.currentHp > player.maxHp) player.currentHp = player.maxHp;
             player.regenBuffs = []; player.activeBuffs = []; player.skillCooldowns = {};
             player.stunned = 0; player.bleedStacks = 0; player.bleedTurns = 0; player.dodgeTurns = 0;
-            // Close hero dropdown if open
+            player.reAliveArmed = false; player.reAliveUsed = false;
             let heroMenu = document.getElementById('hub-hero-menu');
             if(heroMenu) heroMenu.classList.add('hidden');
 
@@ -1502,7 +1544,7 @@
                 classId: classId, data: CLASSES[classId], lvl: 1, xp: 0, maxHp: 0, currentHp: 0, shield: 0, 
                 statPoints: 0, skillPoints: 0, treeProgress: 0, treeBonusHp: 0, treeBonusDmg: 0, treeBonusDef: 0, treeBonusRegen: 0,
                 treeProgressFire: 0, treeProgressIce: 0, treeProgressOffense: 0, treeProgressDefense: 0,
-                treeProgressHoly: 0, treeProgressGuardian: 0, treeProgressShadow: 0, treeProgressVenom: 0,
+                treeProgressHoly: 0, treeProgressGuardian: 0, treeProgressShadow: 0, treeProgressVenom: 0, treeProgressDivine: 0, treeProgressPlague: 0,
                 unlockedSkills: [0, 1, 2], equippedSkills: [0, 1, 2, null, null], skillCooldowns: {}, regenBuffs: [], activeBuffs: [], stunned: 0, bleedStacks: 0, bleedTurns: 0, dodgeTurns: 0,
                 equippedUsables: ['pot_i1', null, null, null, null, null, null],
                 wayOfHeavensCooldown: 0, rageUsed: false, rageActive: 0, divineShieldUsed: false, reflectUsed: false
@@ -1712,7 +1754,7 @@
             document.getElementById('char-stat-def').innerText = `${getPlayerDef()} (+${eqStats.def})`;
             
             let a = globalProgression.attributes;
-            let hpRegenAmt = Math.floor(player.maxHp * (a.hp * 0.0001 + getEquipBonusStat('bonusHpRegen')));
+            let hpRegenAmt = Math.floor(player.maxHp * (a.hp * 0.0001 + (a.happiness || 0) * 0.0001 + getEquipBonusStat('bonusHpRegen')));
             document.getElementById('char-stat-regen').innerText = `${(player.treeBonusRegen || 0) + hpRegenAmt} HP/Turn`;
             document.getElementById('char-stat-gs').innerText = (eqStats.hp/10 + eqStats.dmg*2 + eqStats.def*5).toFixed(0);
 
@@ -1829,12 +1871,16 @@
                 { id: 'fury', name: 'Fury', desc: '+1% Crit Damage', color: 'text-red-500' },
                 { id: 'devastation', name: 'Devastation', desc: '+1 to ALL Stats (Costs 5 Pts, Max 100)', color: 'text-pink-500' }
             ];
+            if(player.classId === 'cleric') {
+                attrDefs.push({ id: 'happiness', name: 'Happiness', desc: '+0.01% Healing, +0.01% Health Regen, +2 HP, +0.01% Skill Damage', color: 'text-pink-400' });
+            }
 
             attrDefs.forEach(a => {
-                let currentVal = globalProgression.attributes[a.id] || (a.id === 'devastation' ? 0 : 1);
+                let isHappiness = a.id === 'happiness';
+                let currentVal = globalProgression.attributes[a.id] || (a.id === 'devastation' || isHappiness ? 0 : 1);
                 let classId = player.classId || 'warrior';
                 let classBase = getClassBaseAttributes(classId);
-                let minVal = a.id === 'devastation' ? 0 : (classBase[a.id] || 1);
+                let minVal = a.id === 'devastation' || isHappiness ? 0 : (classBase[a.id] || 1);
                 let attrCap = getClassAttrCap(classId, a.id);
                 let isDevastation = a.id === 'devastation';
                 let cost = isDevastation ? 5 : 1;
@@ -1902,7 +1948,7 @@
                     globalProgression.attributes[stat] = Math.min(statCap, (globalProgression.attributes[stat] || 1) + count);
                 });
             } else {
-                let currentVal = globalProgression.attributes[id] || 1;
+                let currentVal = globalProgression.attributes[id] !== undefined ? globalProgression.attributes[id] : (id === 'happiness' ? 0 : 1);
                 let canAllocate = Math.min(count, attrCap - currentVal, Math.floor(player.statPoints / cost));
                 if (canAllocate <= 0) return;
                 player.statPoints -= canAllocate * cost;
@@ -1919,8 +1965,8 @@
             count = count || 1;
             let classId = player.classId || 'warrior';
             let classBase = getClassBaseAttributes(classId);
-            let minVal = id === 'devastation' ? 0 : (classBase[id] || 1);
-            let currentVal = globalProgression.attributes[id] || minVal;
+            let minVal = id === 'devastation' || id === 'happiness' ? 0 : (classBase[id] || 1);
+            let currentVal = globalProgression.attributes[id] !== undefined ? globalProgression.attributes[id] : minVal;
             let canRemove = Math.min(count, currentVal - minVal);
             if (canRemove <= 0) return;
 
@@ -2097,6 +2143,7 @@
                 else if (classId === 'mage') { weaponName = 'Staff'; weaponIcon = '🪄'; }
                 else if (classId === 'paladin') { weaponName = 'Hammer'; weaponIcon = '🔨'; }
                 else if (classId === 'ninja') { weaponName = 'Shuriken'; weaponIcon = '🌟'; }
+                else if (classId === 'cleric') { weaponName = 'Scepter'; weaponIcon = '⛪'; }
             }
 
             let SLOT_ICONS = { head:'🪖', shoulders:'🛡️', chest:'🦺', arms:'🦾', waist:'🪢', legs:'👖', boots:'🥾', necklace:'📿', ring:'💍', cape:'🧥', weapon: weaponIcon };
@@ -2208,6 +2255,7 @@
                 document.getElementById('tree-mage').classList.add('hidden');
                 let treePaladinW = document.getElementById('tree-paladin'); if(treePaladinW) treePaladinW.classList.add('hidden');
                 let treeNinjaW = document.getElementById('tree-ninja'); if(treeNinjaW) treeNinjaW.classList.add('hidden');
+                let treeClericW = document.getElementById('tree-cleric'); if(treeClericW) treeClericW.classList.add('hidden');
                 document.getElementById('tree-progress').innerText = `${player.treeProgressOffense||0}O / ${player.treeProgressDefense||0}D`;
                 
                 const container = document.getElementById('warrior-tree-container'); container.innerHTML = '';
@@ -2265,6 +2313,7 @@
                 document.getElementById('tree-mage').classList.remove('hidden');
                 let treePaladin2 = document.getElementById('tree-paladin'); if(treePaladin2) treePaladin2.classList.add('hidden');
                 let treeNinja2 = document.getElementById('tree-ninja'); if(treeNinja2) treeNinja2.classList.add('hidden');
+                let treeCleric2 = document.getElementById('tree-cleric'); if(treeCleric2) treeCleric2.classList.add('hidden');
                 document.getElementById('tree-progress-mage').innerText = `${player.treeProgressFire||0}F / ${player.treeProgressIce||0}I`;
                 
                 const container = document.getElementById('mage-tree-container'); container.innerHTML = '';
@@ -2318,6 +2367,7 @@
                 document.getElementById('tree-warrior').classList.add('hidden');
                 document.getElementById('tree-mage').classList.add('hidden');
                 let treeNinjaP = document.getElementById('tree-ninja'); if(treeNinjaP) treeNinjaP.classList.add('hidden');
+                let treeClericP = document.getElementById('tree-cleric'); if(treeClericP) treeClericP.classList.add('hidden');
                 let treePaladin = document.getElementById('tree-paladin');
                 if(treePaladin) {
                     treePaladin.classList.remove('hidden');
@@ -2363,6 +2413,7 @@
                 document.getElementById('tree-warrior').classList.add('hidden');
                 document.getElementById('tree-mage').classList.add('hidden');
                 let treePaladinN = document.getElementById('tree-paladin'); if(treePaladinN) treePaladinN.classList.add('hidden');
+                let treeClericN = document.getElementById('tree-cleric'); if(treeClericN) treeClericN.classList.add('hidden');
                 let treeNinja = document.getElementById('tree-ninja');
                 if(treeNinja) {
                     treeNinja.classList.remove('hidden');
@@ -2406,6 +2457,55 @@
                         venomCol.appendChild(btn);
                     }
                     container.appendChild(venomCol);
+                }
+            } else if (player.classId === 'cleric') {
+                document.getElementById('tree-warrior').classList.add('hidden');
+                document.getElementById('tree-mage').classList.add('hidden');
+                let treePaladinC = document.getElementById('tree-paladin'); if(treePaladinC) treePaladinC.classList.add('hidden');
+                let treeNinjaC = document.getElementById('tree-ninja'); if(treeNinjaC) treeNinjaC.classList.add('hidden');
+                let treeCleric = document.getElementById('tree-cleric');
+                if(treeCleric) {
+                    treeCleric.classList.remove('hidden');
+                    let progCleric = document.getElementById('tree-progress-cleric');
+                    if(progCleric) progCleric.innerText = (player.treeProgressDivine||0) + (player.treeProgressPlague||0);
+                    let container = document.getElementById('cleric-tree-container'); container.innerHTML = '';
+                    // Divine Path (left) — pink/green themed
+                    let divineCol = document.createElement('div'); divineCol.className = 'w-1/2 flex flex-col gap-2 relative';
+                    divineCol.innerHTML = '<div class="text-center font-bold text-pink-400 border-b border-pink-700 pb-1 sticky top-0 bg-gray-900 z-10 drop-shadow-md">DIVINE PATH</div>';
+                    for(let i=0; i<25; i++) {
+                        let isUnlocked = i < (player.treeProgressDivine||0);
+                        let isNext = i === (player.treeProgressDivine||0);
+                        let isSkillNode = (i===4 || i===9 || i===14);
+                        let skillIdx = i===4 ? 3 : i===9 ? 4 : i===14 ? 5 : null;
+                        let btn = document.createElement('button');
+                        btn.className = `p-2 rounded text-[10px] md:text-xs font-bold border-2 transition-all shadow-md ${isUnlocked?'bg-pink-900 border-pink-500 text-pink-200':isNext?'bg-gray-700 border-yellow-400 text-white animate-pulse shadow-[0_0_10px_rgba(250,204,21,0.5)]':'bg-gray-800 border-gray-700 text-gray-500 opacity-60'}`;
+                        btn.disabled = !isNext;
+                        if(isSkillNode) { btn.innerHTML = `<span class="text-lg">✨</span><br>Unlock:<br>${player.data.skills[skillIdx].name}`; btn.classList.add('h-20'); }
+                        else { btn.innerHTML = `❓ Random<br>Attribute`; }
+                        if(isNext) btn.onclick = () => unlockNextNode('divine', i);
+                        divineCol.appendChild(btn);
+                    }
+                    container.appendChild(divineCol);
+                    // Plague Path (right) — dark green themed
+                    let plagueCol = document.createElement('div'); plagueCol.className = 'w-1/2 flex flex-col gap-2 relative';
+                    plagueCol.innerHTML = '<div class="text-center font-bold text-green-600 border-b border-green-800 pb-1 sticky top-0 bg-gray-900 z-10 drop-shadow-md">PLAGUE PATH</div>';
+                    for(let i=0; i<25; i++) {
+                        let isUnlocked = i < (player.treeProgressPlague||0);
+                        let isNext = i === (player.treeProgressPlague||0);
+                        let isSkillNode = (i===4 || i===9 || i===14);
+                        let skillIdx = i===4 ? 6 : i===9 ? 7 : i===14 ? 8 : null;
+                        let btn = document.createElement('button');
+                        btn.className = `p-2 rounded text-[10px] md:text-xs font-bold border-2 transition-all shadow-md ${isUnlocked?'bg-green-900 border-green-600 text-green-200':isNext?'bg-gray-700 border-yellow-400 text-white animate-pulse shadow-[0_0_10px_rgba(250,204,21,0.5)]':'bg-gray-800 border-gray-700 text-gray-500 opacity-60'}`;
+                        btn.disabled = !isNext;
+                        if(isSkillNode) {
+                            let skillName = (player.data.skills[skillIdx]) ? player.data.skills[skillIdx].name : 'Skill';
+                            btn.innerHTML = `<span class="text-lg">☠️</span><br>Unlock:<br>${skillName}`;
+                            btn.classList.add('h-20');
+                        } else { btn.innerHTML = `❓ Random<br>Attribute`; }
+                        if(isNext) btn.onclick = () => unlockNextNode('plague', i);
+                        plagueCol.appendChild(btn);
+                    }
+                    container.appendChild(plagueCol);
                 }
             }
 
@@ -2563,6 +2663,32 @@
                     } else {
                         globalProgression.attributes[picked] = (globalProgression.attributes[picked] || 1) + 1;
                         showFloatText('hub-avatar', `+1 ${picked.toUpperCase()}`, 'text-lime-400');
+                        let newEnh = rollEnhancement(); globalProgression.skillTreeEnhancements.push(newEnh); showEnhancementPopup(newEnh);
+                    }
+                }
+            }
+            else if (path === 'divine' || path === 'plague') {
+                player.skillPoints--;
+                let attrs = ['hp', 'tenacity', 'agility', 'willpower', 'resistance', 'reflexes', 'fury', 'happiness'];
+                let picked = attrs[Math.floor(Math.random() * attrs.length)];
+                if(path === 'divine') {
+                    player.treeProgressDivine = (player.treeProgressDivine||0) + 1;
+                    if(index === 4) { if(!player.unlockedSkills.includes(3)) player.unlockedSkills.push(3); }
+                    else if(index === 9) { if(!player.unlockedSkills.includes(4)) player.unlockedSkills.push(4); }
+                    else if(index === 14) { if(!player.unlockedSkills.includes(5)) player.unlockedSkills.push(5); }
+                    else {
+                        globalProgression.attributes[picked] = (globalProgression.attributes[picked] || 0) + 1;
+                        showFloatText('hub-avatar', `+1 ${picked.toUpperCase()}`, 'text-pink-400');
+                        let newEnh = rollEnhancement(); globalProgression.skillTreeEnhancements.push(newEnh); showEnhancementPopup(newEnh);
+                    }
+                } else {
+                    player.treeProgressPlague = (player.treeProgressPlague||0) + 1;
+                    if(index === 4) { if(!player.unlockedSkills.includes(6)) player.unlockedSkills.push(6); }
+                    else if(index === 9) { if(!player.unlockedSkills.includes(7)) player.unlockedSkills.push(7); }
+                    else if(index === 14) { if(!player.unlockedSkills.includes(8)) player.unlockedSkills.push(8); }
+                    else {
+                        globalProgression.attributes[picked] = (globalProgression.attributes[picked] || 0) + 1;
+                        showFloatText('hub-avatar', `+1 ${picked.toUpperCase()}`, 'text-green-600');
                         let newEnh = rollEnhancement(); globalProgression.skillTreeEnhancements.push(newEnh); showEnhancementPopup(newEnh);
                     }
                 }
@@ -3283,13 +3409,13 @@
             enemies = [];
             
             if (currentMode === 'quest') { 
-                for(let i=0; i<5; i++) { let e = { shield: 0, healBlock: 0, defReduction: 0, bleedStacks: 0, bleedTurns: 0, burnTurns: 0, poisonTurns: 0, dodgeTurns: 0, rarity: 'common', lvl: 1, name: 'Weak Target', avatar: '🎯', maxHp: 1, baseDmg: 0, currentHp: 1 }; assignEnemySkills(e); enemies.push(e); } 
+                for(let i=0; i<5; i++) { let e = { shield: 0, healBlock: 0, defReduction: 0, bleedStacks: 0, bleedTurns: 0, burnStacks: 0, burnTurns: 0, poisonStacks: 0, poisonTurns: 0, skipChance: 0, skipTurns: 0, dmgTakenMult: 1, dmgTakenTurns: 0, dodgeTurns: 0, rarity: 'common', lvl: 1, name: 'Weak Target', avatar: '🎯', maxHp: 1, baseDmg: 0, currentHp: 1 }; assignEnemySkills(e); enemies.push(e); } 
                 activeTargetIndex = 0; return; 
             }
 
             if (currentMode === 'graveyard') {
                 let baseBoss = globalProgression.killedBosses[activeGraveyardBoss];
-                let e = { shield: 0, healBlock: 0, defReduction: 0, bleedStacks: 0, bleedTurns: 0, burnTurns: 0, poisonTurns: 0, dodgeTurns: 0, rarity: 'boss', isBoss: true };
+                let e = { shield: 0, healBlock: 0, defReduction: 0, bleedStacks: 0, bleedTurns: 0, burnStacks: 0, burnTurns: 0, poisonStacks: 0, poisonTurns: 0, skipChance: 0, skipTurns: 0, dmgTakenMult: 1, dmgTakenTurns: 0, dodgeTurns: 0, rarity: 'boss', isBoss: true };
                 e.lvl = Math.max(1, player.lvl + 2);
                 e.name = baseBoss.name; e.avatar = baseBoss.avatar;
                 e.maxHp = Math.max(1, Math.floor(25 * baseBoss.hpMult * (1 + (e.lvl - 1) * 0.4) * 3)); 
@@ -3324,7 +3450,7 @@
             if(currentMode === 'dungeon') pool = ENEMIES_DUNGEON;
 
             for(let i=0; i<count; i++) {
-                let e = { shield: 0, healBlock: 0, defReduction: 0, bleedStacks: 0, bleedTurns: 0, burnTurns: 0, poisonTurns: 0, dodgeTurns: 0, rarity: 'common', isBoss: false };
+                let e = { shield: 0, healBlock: 0, defReduction: 0, bleedStacks: 0, bleedTurns: 0, burnStacks: 0, burnTurns: 0, poisonStacks: 0, poisonTurns: 0, skipChance: 0, skipTurns: 0, dmgTakenMult: 1, dmgTakenTurns: 0, dodgeTurns: 0, rarity: 'common', isBoss: false };
                 
                 if (currentMode === 'dungeon' && activeDungeonRoom === 5) {
                     e.lvl = activeDungeonTier * 5; 
@@ -3394,6 +3520,7 @@
             } 
             player.shield = 0;
             player.rageUsed = false; player.divineShieldUsed = false; player.reflectUsed = false;
+            player.reAliveArmed = false; player.reAliveUsed = false;
             player.rageActive = player.rageActive || 0;
             Object.keys(player.skillCooldowns).forEach(k => player.skillCooldowns[k] = 0);
             combatLog = [`Encountered ${enemies.length} enemies!`, "Fight!"]; isPlayerTurn = true;
@@ -3522,6 +3649,7 @@
 
             const shieldInd = document.getElementById('player-shield-indicator'); if (shieldInd) shieldInd.style.display = player.shield > 0 ? 'block' : 'none';
             const regenInd = document.getElementById('player-regen-indicator'); if (regenInd) regenInd.style.display = player.regenBuffs.length > 0 ? 'block' : 'none';
+            const dizzyInd = document.getElementById('player-dizzy-indicator'); if (dizzyInd) dizzyInd.style.display = (player.activeBuffs && player.activeBuffs.some(b => b.type === 'healingBuff')) ? 'block' : 'none';
             const stunInd = document.getElementById('player-stun-indicator'); if (stunInd) stunInd.style.display = player.stunned > 0 ? 'block' : 'none';
 
             let activeBuffsHtml = '';
@@ -3679,9 +3807,11 @@
 
         function processRegenAndBuffs() {
             let healMult = player.activeBuffs.some(b => b.type === 'poison') ? 0.5 : 1.0;
+            let healingBuffMult = 1.0;
+            if(player.activeBuffs) player.activeBuffs.filter(b => b.type === 'healingBuff').forEach(b => healingBuffMult += b.val);
             let a = globalProgression.attributes;
-            let hpRegenAmt = Math.floor(player.maxHp * (a.hp * 0.0001 + getEquipBonusStat('bonusHpRegen')));
-            let treeRegen = Math.floor(((player.treeBonusRegen || 0) + hpRegenAmt) * healMult);
+            let hpRegenAmt = Math.floor(player.maxHp * (a.hp * 0.0001 + (a.happiness || 0) * 0.0001 + getEquipBonusStat('bonusHpRegen')));
+            let treeRegen = Math.floor(((player.treeBonusRegen || 0) + hpRegenAmt) * healMult * healingBuffMult);
             
             if (treeRegen > 0 && player.currentHp < player.maxHp) {
                 player.currentHp = Math.min(player.maxHp, player.currentHp + treeRegen);
@@ -3690,7 +3820,7 @@
             }
 
             if(player.regenBuffs.length > 0) {
-                let totalHeal = 0; player.regenBuffs.forEach(b => { totalHeal += Math.floor(b.amount * healMult); b.turns--; });
+                let totalHeal = 0; player.regenBuffs.forEach(b => { totalHeal += Math.floor(b.amount * healMult * healingBuffMult); b.turns--; });
                 player.regenBuffs = player.regenBuffs.filter(b => b.turns > 0);
                 if(totalHeal > 0) { player.currentHp = Math.min(player.maxHp, player.currentHp + totalHeal); addLog(`Regen restored ${totalHeal} HP!`, 'text-green-400'); triggerAnim('combat-player-avatar', 'anim-heal'); showFloatText('player-avatar-container', `+${totalHeal}`, 'text-green-400'); playSound('heal'); }
             }
@@ -3745,7 +3875,7 @@
             let buffDmgMult = 1.0; 
             if (player.activeBuffs) player.activeBuffs.filter(b => b.type === 'dmg').forEach(b => buffDmgMult *= b.val);
             let a = globalProgression.attributes;
-            let skillDmgMult = 1 + (a.agility * 0.001);
+            let skillDmgMult = 1 + (a.agility * 0.001) + ((a.happiness || 0) * 0.0001);
             
             let scaledPower = Math.max(1, Math.floor(baseDmg * skill.mult * buffDmgMult * skillDmgMult));
             let hits = skill.hits || 1;
@@ -3804,7 +3934,7 @@
                         }
                         
                         let defMult = 1 - (target.defReduction || 0); 
-                        let hitDmg = Math.floor(scaledPower * defMult);
+                        let hitDmg = Math.floor(scaledPower * defMult * (target.dmgTakenMult || 1));
                         
                         if(skill.special === 'hpPctDmg') {
                             hitDmg = Math.max(1, Math.floor(target.maxHp * (skill.hpPctDmg || 0.30)));
@@ -3844,6 +3974,21 @@
                                 target.healBlock = Math.max(target.healBlock || 0, skill.effect.poisonTurns || 2);
                                 showFloatText('enemy-card-' + tIdx, 'POISON', 'text-green-400');
                             }
+                            if(skill.effect.bleedStacks) {
+                                target.bleedStacks = (target.bleedStacks || 0) + skill.effect.bleedStacks;
+                                target.bleedTurns = Math.max(target.bleedTurns || 0, skill.effect.bleedTurns || 3);
+                                showFloatText('enemy-card-' + tIdx, `🩸x${skill.effect.bleedStacks}`, 'text-red-500');
+                            }
+                            if(skill.effect.burnStacks) {
+                                target.burnStacks = (target.burnStacks || 0) + skill.effect.burnStacks;
+                                target.burnTurns = Math.max(target.burnTurns || 0, skill.effect.burnTurns || 3);
+                                showFloatText('enemy-card-' + tIdx, `🔥`, 'text-orange-500');
+                            }
+                            if(skill.effect.poisonStacks) {
+                                target.poisonStacks = (target.poisonStacks || 0) + skill.effect.poisonStacks;
+                                target.poisonTurns = Math.max(target.poisonTurns || 0, skill.effect.poisonTurns || 3);
+                                showFloatText('enemy-card-' + tIdx, `☠️x${skill.effect.poisonStacks}`, 'text-green-500');
+                            }
                         }
                     });
                 }
@@ -3851,13 +3996,30 @@
 
             } else if (skill.type === 'heal') {
                 let healMult = player.activeBuffs.some(b => b.type === 'poison') ? 0.5 : 1.0;
-                let actualHeal = Math.floor(scaledPower * healMult);
+                let healingBuffMult = 1.0;
+                if(player.activeBuffs) player.activeBuffs.filter(b => b.type === 'healingBuff').forEach(b => healingBuffMult += b.val);
+                let actualHeal = Math.floor(scaledPower * healMult * healingBuffMult);
                 playSound('heal'); triggerAnim('combat-player-avatar', 'anim-heal'); 
                 player.currentHp = Math.min(player.maxHp, player.currentHp + actualHeal); addLog(`Used ${skill.name}! Recovered ${actualHeal} HP!`, "text-green-400 font-bold"); showFloatText('player-avatar-container', `+${actualHeal}`, 'text-green-400');
             } else if (skill.type === 'shield') { 
                 playSound('shield'); player.shield = skill.power; addLog(`Used ${skill.name}! Guarding!`, "text-blue-300 font-bold"); 
             } else if (skill.type === 'buff') {
                 playSound('buff'); triggerAnim('combat-player-avatar', 'anim-heal'); addLog(`Used ${skill.name}!`, "text-white font-bold");
+            } else if (skill.type === 'debuff') {
+                playSound('buff'); addLog(`Used ${skill.name}!`, "text-purple-400 font-bold");
+                let target = enemies[activeTargetIndex];
+                if(target && target.currentHp > 0 && skill.effect) {
+                    if(skill.effect.skipChance && skill.effect.skipTurns) {
+                        target.skipChance = skill.effect.skipChance;
+                        target.skipTurns = (target.skipTurns || 0) + skill.effect.skipTurns;
+                        addLog(`${target.name} has ${Math.floor(skill.effect.skipChance*100)}% to skip turns for ${skill.effect.skipTurns}t!`, 'text-yellow-400');
+                    }
+                    if(skill.effect.dmgTaken) {
+                        target.dmgTakenMult = (target.dmgTakenMult || 1) + skill.effect.dmgTaken;
+                        target.dmgTakenTurns = (target.dmgTakenTurns || 0) + (skill.effect.dmgTakenTurns || 3);
+                        addLog(`${target.name} takes ${Math.floor(skill.effect.dmgTaken*100)}% more damage for ${skill.effect.dmgTakenTurns || 3}t!`, 'text-orange-400');
+                    }
+                }
             }
 
             if(skill.special === 'smokeBomb') {
@@ -3875,13 +4037,19 @@
 
             if(skill.self_effect) {
                 let healMult = player.activeBuffs.some(b => b.type === 'poison') ? 0.5 : 1.0;
-                if(skill.self_effect.healPct) { let h = Math.floor(player.maxHp * skill.self_effect.healPct * healMult); player.currentHp = Math.min(player.maxHp, player.currentHp + h); showFloatText('player-avatar-container', `+${h}`, 'text-green-400'); }
+                let healingBuffMult = 1.0;
+                if(player.activeBuffs) player.activeBuffs.filter(b => b.type === 'healingBuff').forEach(b => healingBuffMult += b.val);
+                if(skill.self_effect.healPct) { let h = Math.floor(player.maxHp * skill.self_effect.healPct * healMult * healingBuffMult); player.currentHp = Math.min(player.maxHp, player.currentHp + h); showFloatText('player-avatar-container', `+${h}`, 'text-green-400'); }
+                if(skill.self_effect.fullHeal) { let h = Math.floor((player.maxHp - player.currentHp) * healMult * healingBuffMult); player.currentHp = player.maxHp; showFloatText('player-avatar-container', `FULL HEAL!`, 'text-green-400 font-bold'); playSound('heal'); addLog(`Full HP restored!`, 'text-green-400 font-bold'); }
                 if(skill.self_effect.defDown) { player.activeBuffs.push({ type: 'def_down', val: 1 - skill.self_effect.defDown, turns: skill.self_effect.turns }); }
                 if(skill.self_effect.regenPct) { player.regenBuffs.push({ amount: Math.floor(player.maxHp * skill.self_effect.regenPct), turns: skill.self_effect.turns }); }
                 if(skill.self_effect.defUp) { player.activeBuffs.push({ type: 'def', val: 1 + skill.self_effect.defUp, turns: skill.self_effect.turns }); }
                 if(skill.self_effect.fireShield) { player.activeBuffs.push({ type: 'fire_shield', turns: skill.self_effect.turns }); }
                 if(skill.self_effect.iceShield) { player.activeBuffs.push({ type: 'ice_shield', turns: skill.self_effect.turns }); }
                 if(skill.self_effect.dmgUp) { player.activeBuffs.push({ type: 'dmg', val: 1 + skill.self_effect.dmgUp, turns: skill.self_effect.dmgUpTurns || skill.self_effect.turns }); }
+                if(skill.self_effect.dmgBuff) { player.activeBuffs.push({ type: 'dmg', val: 1 + skill.self_effect.dmgBuff, turns: skill.self_effect.turns || 999 }); addLog(`+${Math.floor(skill.self_effect.dmgBuff*100)}% Damage buff!`, 'text-orange-400 font-bold'); }
+                if(skill.self_effect.healingBuff) { player.activeBuffs.push({ type: 'healingBuff', val: skill.self_effect.healingBuff, turns: skill.self_effect.turns || 5 }); addLog(`Healing increased by ${Math.floor(skill.self_effect.healingBuff*100)}% for ${skill.self_effect.turns||5} turns! 💫`, 'text-pink-400 font-bold'); }
+                if(skill.self_effect.reAlive) { player.reAliveArmed = true; addLog(`Re Alive armed! Will revive at 50% HP on death!`, 'text-yellow-400 font-bold'); }
                 if(skill.self_effect.blockHit) {
                     if(Math.random() < (skill.self_effect.blockChance || 0.50)) {
                         player.activeBuffs.push({ type: 'block_hit', turns: skill.self_effect.blockTurns || 3 });
@@ -3936,8 +4104,32 @@
                 let bDmg = Math.max(1, Math.floor(e.maxHp * 0.01 * e.bleedStacks)); e.currentHp -= bDmg; e.bleedTurns--; showFloatText(`enemy-card-${enemyIdx}`, `-${bDmg}`, 'text-red-600');
                 if(e.currentHp <= 0) { updateCombatUI(); setTimeout(() => executeEnemyTurns(enemyIdx + 1), 400); return; }
             }
+            if(extraTurns === 0 && e.burnTurns > 0) {
+                let burnStacks = e.burnStacks || 1;
+                let burnDmg = Math.max(1, Math.floor(e.maxHp * 0.05 * burnStacks)); e.currentHp -= burnDmg; e.burnTurns--; if(e.burnTurns <= 0) e.burnStacks = 0; showFloatText(`enemy-card-${enemyIdx}`, `-${burnDmg}🔥`, 'text-orange-500');
+                if(e.currentHp <= 0) { updateCombatUI(); setTimeout(() => executeEnemyTurns(enemyIdx + 1), 400); return; }
+            }
+            if(extraTurns === 0 && e.poisonTurns > 0) {
+                let poisonStacks = e.poisonStacks || 1;
+                let poisonDmg = Math.max(1, Math.floor(e.maxHp * 0.01 * poisonStacks)); e.currentHp -= poisonDmg; e.poisonTurns--; if(e.poisonTurns <= 0) e.poisonStacks = 0; showFloatText(`enemy-card-${enemyIdx}`, `-${poisonDmg}☠️`, 'text-green-500');
+                if(e.currentHp <= 0) { updateCombatUI(); setTimeout(() => executeEnemyTurns(enemyIdx + 1), 400); return; }
+            }
+            if(extraTurns === 0 && e.dmgTakenTurns > 0) { e.dmgTakenTurns--; if(e.dmgTakenTurns <= 0) e.dmgTakenMult = 1; }
 
             // Decrement CD
+            if(e.cooldowns) {
+                Object.keys(e.cooldowns).forEach(k => { if(e.cooldowns[k] > 0) e.cooldowns[k]--; });
+            }
+
+            // Skip turn chance (Cleric Mud debuff)
+            if(extraTurns === 0 && (e.skipTurns || 0) > 0) {
+                e.skipTurns--;
+                if(Math.random() < (e.skipChance || 0.50)) {
+                    addLog(`${e.name} is confused and skips their turn!`, 'text-yellow-400');
+                    showFloatText(`enemy-card-${enemyIdx}`, `SKIP`, 'text-yellow-400');
+                    updateCombatUI(); setTimeout(() => executeEnemyTurns(enemyIdx + 1), 400); return;
+                }
+            }
             if(e.cooldowns) {
                 Object.keys(e.cooldowns).forEach(k => { if(e.cooldowns[k] > 0) e.cooldowns[k]--; });
             }
@@ -4083,7 +4275,16 @@
             
             player.currentHp -= dmg;
 
-            // Skill reflect (Paladin skills)
+            // Re Alive passive (Cleric)
+            if(player.currentHp <= 0 && player.reAliveArmed && !player.reAliveUsed) {
+                player.reAliveUsed = true;
+                player.reAliveArmed = false;
+                player.currentHp = Math.floor(player.maxHp * 0.50);
+                player.activeBuffs.push({ type: 'dmg', val: 1.30, turns: 999 });
+                showFloatText('player-avatar-container', `RE ALIVE! 🌟`, 'text-yellow-400 font-black');
+                addLog(`Re Alive triggered! Revived at 50% HP with +30% damage!`, 'text-yellow-400 font-bold');
+                playSound('win');
+            }
             let reflectBuff = player.activeBuffs.find(b => b.type === 'skill_reflect');
             if(reflectBuff && attackerEnemy) {
                 let reflectDmg = Math.floor(dmg * reflectBuff.val);
